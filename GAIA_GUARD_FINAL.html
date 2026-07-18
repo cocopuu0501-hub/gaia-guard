@@ -16,7 +16,7 @@
   #cabinet{position:relative;width:100vw;height:100vh;max-width:520px;max-height:920px;background:var(--bg);
     overflow:hidden;box-shadow:0 0 0 2px #0c1a14,0 0 60px rgba(61,255,160,.12),inset 0 0 120px rgba(0,0,0,.6);}
   #shake{position:absolute;inset:0;}
-  canvas{display:block;width:100%;height:100%;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;}
   #scanlines{position:absolute;inset:0;pointer-events:none;z-index:30;mix-blend-mode:multiply;
     background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.22) 3px,rgba(0,0,0,.22) 4px);}
   #vignette{position:absolute;inset:0;pointer-events:none;z-index:31;
@@ -143,7 +143,7 @@
     <div class="title-tag">CIVILIAN AG-DEFENSE NETWORK</div>
     <div class="title-main">GAIA<br>GUARD</div>
     <div class="title-sub">圃場防衛プロトコル</div>
-    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL ・ 全機能統合</div>
+    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL2</div>
     <div class="desc">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。<br>
       コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。<br>
       進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</div>
@@ -258,7 +258,7 @@ const bossTint=document.getElementById('bosstint');
 const hitFlashEl=document.getElementById('hitflash');
 function hitFlash(col,a){hitFlashEl.style.background=col||'#ff2a2a';hitFlashEl.style.opacity=(a||0.42);setTimeout(()=>{hitFlashEl.style.opacity=0;},40);}
 const IS_TOUCH=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;
-const TOUCH_OFFSET=0;   // 0=直置き（指の位置そのものに機体）
+const TOUCH_OFFSET=52;  // 機体を指の少し上に置き、機体と敵弾を見やすくする
 let fireMode='auto';let pointerFiring=false;let fireBtnHeld=false;let fireBuffer=0;
 
 let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
@@ -309,11 +309,11 @@ const FINAL_AREA=5;
 // ---- エリア別 難易度チューニング表（シールド前提で緊張感を出す係数。ここだけ触れば調整可）----
 // spawnMul:敵出現数の倍率 / bossHpMul:ヌシHP倍率 / bossAggroMul:ヌシ攻撃頻度倍率
 const AREA_TUNE={
-  1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05},
-  2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10},
-  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18},
-  4:{spawnMul:1.33, bossHpMul:1.35, bossAggroMul:1.22},  // ここから本格的な緊張帯
-  5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25},  // 最終は微増に留め特別感を維持
+  1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05, fieldDamageMul:0.80},
+  2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10, fieldDamageMul:0.90},
+  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00},
+  4:{spawnMul:1.33, bossHpMul:1.35, bossAggroMul:1.22, fieldDamageMul:1.00},  // ここから本格的な緊張帯
+  5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25, fieldDamageMul:1.00},  // 最終は微増に留め特別感を維持
 };
 function areaTune(a){return AREA_TUNE[a]||AREA_TUNE[5];}
 
@@ -406,7 +406,7 @@ function newState(){
     continues:3,shieldStock:0,shieldT:0,returnedCount:0,
     score:0,level:1,area:1,waveIdx:1,wavesPerArea:D.waves,combo:0,comboTimer:0,
     coinsForNext:4,droneCost:40,fireCd:0,fireRate:0.34,dmg:1,shots:1,pickup:82,surge:0,
-    spawnAcc:0,spawnGap:0.5,waveBreak:0,waveTime:0,
+    spawnAcc:0,spawnGap:0.5,raidAcc:0,waveBreak:0,waveTime:0,
     shake:0,banner:0,bannerText:'',bannerSub:'',bannerCol:'#3dffa0',
     bossWarn:0,bossWarnMax:3.0,warnStep:0,ending:null,
   };
@@ -722,7 +722,7 @@ function startArea(){
   state.phase='wave';state.waveIdx=1;state.bosses=[];state.enemies.length=0;state.bullets.length=0;state.bossShots.length=0;
   layoutFields(state.area);
   if(state.area===1)seedStartCoins(); // ステージ1だけ、最初にコインを置く
-  state.waveTime=0;state.spawnAcc=0;
+  state.waveTime=0;state.spawnAcc=0;state.raidAcc=0;
   document.getElementById('area').textContent=state.area;
   document.getElementById('areamax').textContent=FINAL_AREA;
   document.getElementById('wave').textContent='1/'+state.wavesPerArea;
@@ -866,8 +866,9 @@ function update(dt){
       p.stagger=1.0;p.cgrace=1.8;p.invuln=Math.max(p.invuln,0.6);p.flash=.3;
       const a2=Math.atan2(p.y-e.y,p.x-e.x);p.kx=Math.cos(a2)*300;p.ky=Math.sin(a2)*300;e.x-=Math.cos(a2)*22;e.y-=Math.sin(a2)*22;
       shake(8);SND.sfx.stagger();floatText(p.x,p.y-26,'スタン！','#ff7a2f',15);}
-    if(!tf.dead && dist(e.x,e.y,tf.x,tf.y)<tf.r+e.r){damageField(tf,t.dmg);shake(t.tank?9:4);burst(e.x,e.y,'#ff4d4d',10);
-      dropCoins(e.x,e.y,t.tank?2:1);floatText(tf.x,tf.y-tf.r-6,'-'+t.dmg,'#ff6b6b',14);s.enemies.splice(i,1);if(aliveFields().length===0){state.deathCause='fields';gameOver();return;}}}
+    if(!tf.dead && dist(e.x,e.y,tf.x,tf.y)<tf.r+e.r){const fieldDmg=Math.max(1,Math.round(t.dmg*areaTune(s.area).fieldDamageMul));
+      damageField(tf,fieldDmg);shake(t.tank?9:4);burst(e.x,e.y,'#ff4d4d',10);
+      dropCoins(e.x,e.y,t.tank?2:1);floatText(tf.x,tf.y-tf.r-6,'-'+fieldDmg,'#ff6b6b',14);s.enemies.splice(i,1);if(aliveFields().length===0){state.deathCause='fields';gameOver();return;}}}
 
   for(let i=s.coins.length-1;i>=0;i--){const c=s.coins[i];c.vx*=0.93;c.vy*=0.93;c.x+=c.vx*dt;c.y+=c.vy*dt;c.spin+=dt*7;c.life-=dt;
     const d=dist(c.x,c.y,p.x,p.y);
