@@ -311,7 +311,7 @@ const FINAL_AREA=5;
 const AREA_TUNE={
   1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05, fieldDamageMul:0.80},
   2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10, fieldDamageMul:0.90},
-  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00},
+  3:{spawnMul:1.24, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00}, // AREA4への到達率を上げる中盤緩和
   4:{spawnMul:1.33, bossHpMul:1.35, bossAggroMul:1.22, fieldDamageMul:1.00},  // ここから本格的な緊張帯
   5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25, fieldDamageMul:1.00},  // 最終は微増に留め特別感を維持
 };
@@ -322,7 +322,7 @@ function areaTune(a){return AREA_TUNE[a]||AREA_TUNE[5];}
 const SPAWN_GAP={
   1:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
   2:{fast:0.04, slow:0.10, trickle:0.12, floor:0.08},  // テンポ強化（鬼門対策）
-  3:{fast:0.03, slow:0.08, trickle:0.10, floor:0.06},  // さらに速く（スピード感）
+  3:{fast:0.04, slow:0.10, trickle:0.12, floor:0.08},  // A2相当の補充速度に戻し、過密を防ぐ
   4:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
   5:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
 };
@@ -708,22 +708,27 @@ function layoutFields(a){
   const cx=W/2,cy=H*0.52,R=Math.min(W,H)*0.24;const pos=[];
   if(n===1)pos.push({x:cx,y:cy});
   else for(let i=0;i<n;i++){const ang=-Math.PI/2+i*(6.283/n);pos.push({x:cx+Math.cos(ang)*R,y:cy+Math.sin(ang)*R});}
-  state.fields=pos.map(q=>({x:q.x,y:q.y,r:n===1?54:40,hp:110,maxhp:110,flash:0,glow:1.3,dead:false}));
+  state.fields=pos.map(q=>({x:q.x,y:q.y,r:n===1?54:40,hp:110,maxhp:110,flash:0,glow:1.3,recentDamage:0,dead:false}));
   state.field=state.fields[0];
 }
 function aliveFields(){return state.fields.filter(f=>!f.dead);}
 function nearestField(x,y){const af=aliveFields();if(!af.length)return state.fields[0];let b=af[0],bd=1e18;for(const f of af){const d=(f.x-x)*(f.x-x)+(f.y-y)*(f.y-y);if(d<bd){bd=d;b=f;}}return b;}
-// 敵ごとの攻撃先を緩く分散。差が0〜1体ならランダム、2体以上なら手薄な圃場を優先する。
+// 敵ごとの攻撃先を緩く分散。人数差を抑えつつ、HPが高く直近被害の少ない圃場も自然に狙わせる。
 function chooseFieldTarget(){
   const af=aliveFields();if(!af.length)return state.fields[0];
-  const loads=af.map(f=>({f,n:state.enemies.reduce((sum,e)=>sum+(!e.returning&&e.targetField===f?1:0),0)}));
-  let min=Infinity,max=-Infinity;for(const q of loads){if(q.n<min)min=q.n;if(q.n>max)max=q.n;}
-  const pool=(max-min>=2)?loads.filter(q=>q.n===min):loads;
+  const loads=af.map(f=>({f,n:state.enemies.reduce((sum,e)=>sum+(!e.returning&&e.targetField===f?1:0),0),hp:f.hp/f.maxhp,recent:f.recentDamage||0}));
+  let minLoad=Infinity;for(const q of loads)if(q.n<minLoad)minLoad=q.n;
+  const eligible=loads.filter(q=>q.n<=minLoad+1); // 選択後も人数差は最大2体まで
+  let maxHp=0,minHp=1;for(const q of eligible){if(q.hp>maxHp)maxHp=q.hp;if(q.hp<minHp)minHp=q.hp;}
+  let pool;
+  if(maxHp-minHp>=0.10)pool=eligible.filter(q=>q.hp>=maxHp-0.05); // 10%以上差があれば元気な圃場へ圧力を分散
+  else{let minRecent=Infinity;for(const q of eligible)if(q.recent<minRecent)minRecent=q.recent;
+    pool=eligible.filter(q=>q.recent<=minRecent+4);} // HPが近いときは直近被害の少ない側を優先
   return pool[Math.floor(Math.random()*pool.length)].f;
 }
 function damageField(f,amt){if(f.dead)return;
   if(state&&state.shieldT>0){f.glow=Math.max(f.glow,0.8);return;} // シールド中は無効（点灯のみ）
-  f.hp-=amt;f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
+  f.hp-=amt;f.recentDamage=Math.min(60,(f.recentDamage||0)+amt);f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
 
 // ---- stage flow ----
 function seedStartCoins(){for(let i=0;i<11;i++){const a=rand(0,6.283),d=rand(60,150),cx=W/2+Math.cos(a)*d,cy=H*0.52+Math.sin(a)*d;state.coins.push({x:clamp(cx,20,W-20),y:clamp(cy,20,H-20),vx:0,vy:0,r:7,spin:rand(0,6.28),life:16});}floatText(W/2,H*0.52-70,'コインを拾って強くなろう / COLLECT COINS！','#ffe45c',13);}
@@ -777,7 +782,7 @@ function update(dt){
     } else {
       raidEvery=Math.max(1.2,2.8-(s.area-2)*0.4-ramp*1.3); // A2以降: AREA4基準の密度
     }
-    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();const extraRaidChance=s.area>=4?0.30:0.45;if(s.area>=2&&Math.random()<extraRaidChance)spawnRaider();}
+    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();const extraRaidChance=s.area>=3?0.30:0.45;if(s.area>=2&&Math.random()<extraRaidChance)spawnRaider();}
     if(active<floorActive*0.5){
       if(s.spawnAcc>=0.06){s.spawnAcc=0;spawnEnemy(pickEnemy(),true);spawnEnemy(pickEnemy(),true);}
     } else if(active<floorActive && alive<targetCon+10){
@@ -845,7 +850,7 @@ function update(dt){
       updateLives();hitFlash();s.bossShots.splice(i,1);if(s.lives<=0){state.deathCause='drone';gameOver();return;}}
   }
 
-  for(const f of s.fields){if(f.flash>0)f.flash-=dt;if(f.glow>0)f.glow-=dt*1.6;}
+  for(const f of s.fields){if(f.flash>0)f.flash-=dt;if(f.glow>0)f.glow-=dt*1.6;if(f.recentDamage>0)f.recentDamage=Math.max(0,f.recentDamage-dt*6);}
   for(let i=s.enemies.length-1;i>=0;i--){const e=s.enemies[i],t=TYPES[e.type];
     if(e.returning){e.returnT-=dt;e.x+=e.rvx*dt;e.y+=e.rvy*dt;e.rvy*=0.98;e.alpha=clamp(e.returnT/0.6,0,1);if(e.returnT<=0)s.enemies.splice(i,1);continue;}
     if(e.appear>0){e.appear-=dt;if(e.flash>0)e.flash-=dt;continue;}
