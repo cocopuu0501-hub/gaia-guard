@@ -174,7 +174,7 @@
     <div id="shopMsg" class="diff-note" style="min-height:14px;color:var(--soft);margin-top:8px;"></div>
     <button class="btn" id="buyDroneBtn" style="margin-top:6px;background:#36e0ff;color:var(--bg);box-shadow:4px 4px 0 #0a2630,0 0 20px rgba(54,224,255,.4);">＋ 子機購入 / BUY DRONE</button>
     <button class="btn" id="buyShieldBtn" style="margin-top:10px;background:#9dffce;color:var(--bg);box-shadow:4px 4px 0 #0c2a1c,0 0 20px rgba(157,255,206,.4);font-size:14px;">🛡 農園シールド / BUY SHIELD（35）</button>
-    <div class="diff-note">1キーで3秒無敵 / PRESS 1 FOR 3-SEC SHIELD<br>温存でボーナス / UNUSED SHIELDS GIVE A BONUS</div>
+    <div class="diff-note">1キーで圃場無敵（AREA 1〜3: 3秒 / AREA 4〜5: 4秒）<br>PRESS 1 FOR FIELD SHIELD（AREA 1–3: 3 SEC / AREA 4–5: 4 SEC）<br>温存でボーナス / UNUSED SHIELDS GIVE A BONUS</div>
     <button class="btn d-normal" id="nextBtn" style="color:var(--bg);margin-top:12px;">▶ 次の農園へ / NEXT</button>
   </div>
 
@@ -311,7 +311,7 @@ const FINAL_AREA=5;
 const AREA_TUNE={
   1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05, fieldDamageMul:0.80},
   2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10, fieldDamageMul:0.90},
-  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00},
+  3:{spawnMul:1.24, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00}, // AREA4への到達率を上げる中盤緩和
   4:{spawnMul:1.33, bossHpMul:1.35, bossAggroMul:1.22, fieldDamageMul:1.00},  // ここから本格的な緊張帯
   5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25, fieldDamageMul:1.00},  // 最終は微増に留め特別感を維持
 };
@@ -322,7 +322,7 @@ function areaTune(a){return AREA_TUNE[a]||AREA_TUNE[5];}
 const SPAWN_GAP={
   1:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
   2:{fast:0.04, slow:0.10, trickle:0.12, floor:0.08},  // テンポ強化（鬼門対策）
-  3:{fast:0.03, slow:0.08, trickle:0.10, floor:0.06},  // さらに速く（スピード感）
+  3:{fast:0.04, slow:0.10, trickle:0.12, floor:0.08},  // A2相当の補充速度に戻し、過密を防ぐ
   4:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
   5:{fast:0.05, slow:0.16, trickle:0.18, floor:0.10},  // 現状維持
 };
@@ -346,10 +346,12 @@ function baseLevel(area){return [1,1,4,7,10,13][area]||1;}
 
 // ---- 農園シールド（コインの出口：使い切りアイテム）----
 const SHIELD_DURATION_SEC=3; // 発動時の圃場無敵秒数（調整用）
+const SHIELD_LATE_DURATION_SEC=4; // AREA4〜5は立て直し時間を1秒延長
 const SHIELD_COST=35;        // ショップ購入コスト（固定）
 const SHIELD_MAX=3;          // 所持上限
 const SHIELD_BONUS=30;       // ラン終了時 未使用1個あたりの温存ボーナス
 const SHIELD_AUTO_THRESHOLD=0.30; // 圃場HP合計がこの割合を切ると自動発動（スマホ・オート向け）
+function shieldDuration(area){return area>=4?SHIELD_LATE_DURATION_SEC:SHIELD_DURATION_SEC;}
 
 // ---- spawn pacing（右肩上がりの緊張カーブ）----
 // 「一定数を維持」ではなく「開始は控えめ→ウェーブと時間で増え続け→ヌシ直前が最高潮」。
@@ -441,7 +443,7 @@ function pickEnemy(){const roll=Math.random();if(state.waveIdx>=2&&roll>0.84)ret
 function spawnRaider(){ // 農園のすぐ近くに出現→即・畑へ突撃（序盤から農園を狙わせる）
   const af=state.fields?state.fields.filter(f=>!f.dead):[];if(!af.length)return;
   const key=pickEnemy();const t=TYPES[key],D=state.D;
-  const tf=af[Math.floor(Math.random()*af.length)];
+  const tf=chooseFieldTarget();
   const ang=rand(0,6.283),d=tf.r+rand(40,110);
   const x=clamp(tf.x+Math.cos(ang)*d,18,W-18),y=clamp(tf.y+Math.sin(ang)*d,18,H-18);
   const hpScale=(1+(state.area-1)*0.22+(state.waveIdx-1)*0.08+(state.level-1)*0.07)*D.ehp;
@@ -449,15 +451,15 @@ function spawnRaider(){ // 農園のすぐ近くに出現→即・畑へ突撃�
   const shooter=(key==='deer')||(key==='boar'&&state.area>=2);
   state.enemies.push({x,y,type:key,hp:t.hp*hpScale,maxhp:t.hp*hpScale,r:t.r,
     speed:t.speed*spScale*rand(.92,1.16),wob:rand(0,6.28),flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
-    shooter,shootCd:rand(1.8,3.4),appear:0.5,diveCd:rand(2.5,5.5),dive:0});
+    shooter,shootCd:rand(1.8,3.4),appear:0.5,diveCd:rand(2.5,5.5),dive:0,targetField:tf});
 }
 function spawnEnemy(key,forceTeleport){
-  const t=TYPES[key],D=state.D;let x,y,appear=0;
+  const t=TYPES[key],D=state.D;let x,y,appear=0;const targetField=chooseFieldTarget();
   if(forceTeleport||Math.random()<Math.min(0.6,0.4+(state.area-1)*0.08)){
     const raidChance=Math.min(0.78,0.42+(state.area-1)*0.09); // 農園急襲の割合（序盤から畑を狙う）
     const af=state.fields?state.fields.filter(f=>!f.dead):[];
     if(af.length && Math.random()<raidChance){
-      const tf=af[Math.floor(Math.random()*af.length)];
+      const tf=targetField;
       const ang=rand(0,6.283),d=tf.r+rand(48,124);
       x=clamp(tf.x+Math.cos(ang)*d,18,W-18);y=clamp(tf.y+Math.sin(ang)*d,18,H-18);
     } else {
@@ -475,7 +477,7 @@ function spawnEnemy(key,forceTeleport){
   const shooter=(key==='deer')||(key==='boar'&&state.area>=2);
   state.enemies.push({x,y,type:key,hp:t.hp*hpScale,maxhp:t.hp*hpScale,r:t.r,
     speed:t.speed*spScale*rand(.92,1.16),wob:rand(0,6.28),flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
-    shooter,shootCd:rand(1.8,3.4),appear,diveCd:rand(2.5,5.5),dive:0});
+    shooter,shootCd:rand(1.8,3.4),appear,diveCd:rand(2.5,5.5),dive:0,targetField});
 }
 
 function fire(){
@@ -529,13 +531,13 @@ function buyShield(){if(!state)return;const msg=document.getElementById('shopMsg
   state.score-=SHIELD_COST;state.shieldStock++;SND.sfx.buy();
   msg.textContent='シールド補充！ 所持 '+state.shieldStock+' 個 / SHIELD ADDED — PRESS 1 TO USE';
   refreshShop();updateShieldHUD();}
-// シールド発動：ストック-1で圃場がSHIELD_DURATION_SEC秒無敵。0なら不発
+// シールド発動：ストック-1で圃場がエリア別設定秒数だけ無敵。0なら不発
 // auto=true は自動発動（HP閾値割れ）。手動（1キー）も従来通り呼べる
 function activateShield(auto){
   if(!state||!state.running||state.phase==='ending')return;
   if(state.shieldT>0)return; // 発動中の重ねがけは消費しない
   if(state.shieldStock<=0){if(!auto){SND.sfx.eshoot();floatText(state.player.x,state.player.y-26,'シールドなし / NO SHIELD','#5a7d6b',13);}return;}
-  state.shieldStock--;state.shieldT=SHIELD_DURATION_SEC;SND.sfx.buy();shake(3);
+  state.shieldStock--;state.shieldT=shieldDuration(state.area);SND.sfx.buy();shake(3);
   for(const f of aliveFields()){f.glow=1.2;floatText(f.x,f.y-f.r-12,auto?'自動シールド / AUTO SHIELD！':'シールド展開 / SHIELD ON！','#36e0ff',14);}
   updateShieldHUD();}
 function updateShieldHUD(){if(!state)return;const el=document.getElementById('shieldHud');
@@ -706,14 +708,27 @@ function layoutFields(a){
   const cx=W/2,cy=H*0.52,R=Math.min(W,H)*0.24;const pos=[];
   if(n===1)pos.push({x:cx,y:cy});
   else for(let i=0;i<n;i++){const ang=-Math.PI/2+i*(6.283/n);pos.push({x:cx+Math.cos(ang)*R,y:cy+Math.sin(ang)*R});}
-  state.fields=pos.map(q=>({x:q.x,y:q.y,r:n===1?54:40,hp:110,maxhp:110,flash:0,glow:1.3,dead:false}));
+  state.fields=pos.map(q=>({x:q.x,y:q.y,r:n===1?54:40,hp:110,maxhp:110,flash:0,glow:1.3,recentDamage:0,dead:false}));
   state.field=state.fields[0];
 }
 function aliveFields(){return state.fields.filter(f=>!f.dead);}
 function nearestField(x,y){const af=aliveFields();if(!af.length)return state.fields[0];let b=af[0],bd=1e18;for(const f of af){const d=(f.x-x)*(f.x-x)+(f.y-y)*(f.y-y);if(d<bd){bd=d;b=f;}}return b;}
+// 敵ごとの攻撃先を緩く分散。人数差を抑えつつ、HPが高く直近被害の少ない圃場も自然に狙わせる。
+function chooseFieldTarget(){
+  const af=aliveFields();if(!af.length)return state.fields[0];
+  const loads=af.map(f=>({f,n:state.enemies.reduce((sum,e)=>sum+(!e.returning&&e.targetField===f?1:0),0),hp:f.hp/f.maxhp,recent:f.recentDamage||0}));
+  let minLoad=Infinity;for(const q of loads)if(q.n<minLoad)minLoad=q.n;
+  const eligible=loads.filter(q=>q.n<=minLoad+1); // 選択後も人数差は最大2体まで
+  let maxHp=0,minHp=1;for(const q of eligible){if(q.hp>maxHp)maxHp=q.hp;if(q.hp<minHp)minHp=q.hp;}
+  let pool;
+  if(maxHp-minHp>=0.10)pool=eligible.filter(q=>q.hp>=maxHp-0.05); // 10%以上差があれば元気な圃場へ圧力を分散
+  else{let minRecent=Infinity;for(const q of eligible)if(q.recent<minRecent)minRecent=q.recent;
+    pool=eligible.filter(q=>q.recent<=minRecent+4);} // HPが近いときは直近被害の少ない側を優先
+  return pool[Math.floor(Math.random()*pool.length)].f;
+}
 function damageField(f,amt){if(f.dead)return;
   if(state&&state.shieldT>0){f.glow=Math.max(f.glow,0.8);return;} // シールド中は無効（点灯のみ）
-  f.hp-=amt;f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
+  f.hp-=amt;f.recentDamage=Math.min(60,(f.recentDamage||0)+amt);f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
 
 // ---- stage flow ----
 function seedStartCoins(){for(let i=0;i<11;i++){const a=rand(0,6.283),d=rand(60,150),cx=W/2+Math.cos(a)*d,cy=H*0.52+Math.sin(a)*d;state.coins.push({x:clamp(cx,20,W-20),y:clamp(cy,20,H-20),vx:0,vy:0,r:7,spin:rand(0,6.28),life:16});}floatText(W/2,H*0.52-70,'コインを拾って強くなろう / COLLECT COINS！','#ffe45c',13);}
@@ -767,7 +782,7 @@ function update(dt){
     } else {
       raidEvery=Math.max(1.2,2.8-(s.area-2)*0.4-ramp*1.3); // A2以降: AREA4基準の密度
     }
-    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();if(s.area>=2&&Math.random()<0.45)spawnRaider();}
+    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();const extraRaidChance=s.area>=3?0.30:0.45;if(s.area>=2&&Math.random()<extraRaidChance)spawnRaider();}
     if(active<floorActive*0.5){
       if(s.spawnAcc>=0.06){s.spawnAcc=0;spawnEnemy(pickEnemy(),true);spawnEnemy(pickEnemy(),true);}
     } else if(active<floorActive && alive<targetCon+10){
@@ -835,14 +850,14 @@ function update(dt){
       updateLives();hitFlash();s.bossShots.splice(i,1);if(s.lives<=0){state.deathCause='drone';gameOver();return;}}
   }
 
-  for(const f of s.fields){if(f.flash>0)f.flash-=dt;if(f.glow>0)f.glow-=dt*1.6;}
+  for(const f of s.fields){if(f.flash>0)f.flash-=dt;if(f.glow>0)f.glow-=dt*1.6;if(f.recentDamage>0)f.recentDamage=Math.max(0,f.recentDamage-dt*6);}
   for(let i=s.enemies.length-1;i>=0;i--){const e=s.enemies[i],t=TYPES[e.type];
     if(e.returning){e.returnT-=dt;e.x+=e.rvx*dt;e.y+=e.rvy*dt;e.rvy*=0.98;e.alpha=clamp(e.returnT/0.6,0,1);if(e.returnT<=0)s.enemies.splice(i,1);continue;}
     if(e.appear>0){e.appear-=dt;if(e.flash>0)e.flash-=dt;continue;}
     if(e.slowT>0)e.slowT-=dt;const sm=(e.slowT>0?0.42:1)*(s.surge>0?0.3:1);
     if(e.dive>0)e.dive-=dt;else{e.diveCd-=dt;if(e.diveCd<=0){e.diveCd=rand(s.area>=2?3.2:4.5,s.area>=2?6:7.5);e.dive=0.52;e.flash=.12;}}
     const dv=e.dive>0?2.6:1;
-    const tf=nearestField(e.x,e.y);const ang=Math.atan2(tf.y-e.y,tf.x-e.x);e.wob+=dt*4;const wob=t.tank?0:Math.sin(e.wob)*(e.dive>0?0.1:0.5);
+    let tf=e.targetField;if(!tf||tf.dead){tf=chooseFieldTarget();e.targetField=tf;}const ang=Math.atan2(tf.y-e.y,tf.x-e.x);e.wob+=dt*4;const wob=t.tank?0:Math.sin(e.wob)*(e.dive>0?0.1:0.5);
     e.x+=Math.cos(ang+wob)*e.speed*sm*dv*dt;e.y+=Math.sin(ang+wob)*e.speed*sm*dv*dt;if(e.flash>0)e.flash-=dt;
     if(e.shooter && e.x>6&&e.x<W-6&&e.y>6&&e.y<H-6 && s.surge<=0){e.shootCd-=dt;
       if(e.shootCd<=0){
@@ -912,7 +927,7 @@ function render(){
   ctx.globalAlpha=1;ctx.shadowBlur=0;
 
   for(const f of s.fields){ctx.save();ctx.strokeStyle='rgba(54,224,255,0.12)';ctx.beginPath();ctx.arc(f.x,f.y,f.r+110,0,6.28);ctx.stroke();ctx.restore();drawField(f,s.t);
-    if(s.shieldT>0&&!f.dead){ctx.save();const sa=clamp(s.shieldT/SHIELD_DURATION_SEC,0,1);
+    if(s.shieldT>0&&!f.dead){ctx.save();const sa=clamp(s.shieldT/shieldDuration(s.area),0,1);
       ctx.globalAlpha=0.45+0.35*Math.sin(performance.now()/90);ctx.strokeStyle='#36e0ff';ctx.lineWidth=3;
       ctx.shadowColor='#36e0ff';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(f.x,f.y,f.r+14+(1-sa)*4,0,6.28);ctx.stroke();ctx.restore();}}
   for(const c of s.coins)drawCoin(c);
