@@ -68,9 +68,9 @@
   .stat{font-size:12px;color:var(--dim);}
   .stat b{display:block;font-size:30px;margin-top:4px;color:var(--coin);text-shadow:0 0 12px rgba(255,207,58,.5);}
   .controls-hint{margin-top:14px;font-size:10px;letter-spacing:2px;color:var(--dim);line-height:1.8;}
-  .fire-row{display:flex;align-items:center;gap:8px;margin-top:20px;pointer-events:auto;}
-  .fire-lbl{font-size:11px;color:var(--dim);letter-spacing:2px;}
-  .fmbtn{font-family:inherit;font-size:13px;letter-spacing:1px;padding:8px 14px;cursor:pointer;color:var(--text);background:#11201a;border:1px solid #1f3a2c;}
+  .fire-row{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:20px;pointer-events:auto;}
+  .fire-lbl{width:100%;font-size:11px;color:var(--dim);letter-spacing:2px;}
+  .fmbtn{font-family:inherit;font-size:11px;letter-spacing:1px;padding:7px 9px;cursor:pointer;color:var(--text);background:#11201a;border:1px solid #1f3a2c;}
   .fmbtn.active{background:var(--gaia);color:var(--bg);border-color:var(--gaia);box-shadow:0 0 14px rgba(61,255,160,.4);}
   #fireBtn{position:absolute;right:20px;bottom:86px;width:92px;height:92px;border-radius:50%;z-index:22;
     display:flex;align-items:center;justify-content:center;font-family:'DotGothic16',monospace;font-size:18px;letter-spacing:2px;
@@ -121,11 +121,11 @@
   <div id="hud" class="hidden">
     <div id="logo">◈ GAIA GUARD ◈</div>
     <div class="hud-top">
-      <div class="badge"><div class="lbl">ありがとうコイン</div><div class="score" id="score">0</div><div class="combo" id="combo"></div><div class="lives" id="lives" style="margin-top:4px;color:#ff6b6b;font-size:16px;letter-spacing:3px;text-shadow:0 0 8px rgba(255,77,77,.6);"></div><div id="continueHud" style="margin-top:2px;color:var(--coin);font-size:10px;letter-spacing:1px;">つづき残 3</div><div id="shieldHud" style="margin-top:2px;color:var(--cyan);font-size:10px;letter-spacing:1px;">シールド ◇◇◇</div></div>
+      <div class="badge"><div class="lbl">ありがとうコイン</div><div class="score" id="score">0</div><div class="combo" id="combo"></div><div class="lives" id="lives" style="margin-top:4px;color:#ff6b6b;font-size:12px;letter-spacing:1px;text-shadow:0 0 8px rgba(255,77,77,.6);"></div><div id="continueHud" style="margin-top:2px;color:var(--coin);font-size:10px;letter-spacing:1px;">つづき残 / CONTINUES: 3</div><div id="shieldHud" style="margin-top:2px;color:var(--cyan);font-size:10px;letter-spacing:1px;">シールド / SHIELD ◇◇◇</div></div>
       <div class="badge right">
         <div class="area"><span class="lbl">AREA</span> <span id="area">1</span><span class="lbl">/</span><span id="areamax">5</span></div>
         <div class="wv"><span class="lbl">WAVE</span> <span id="wave">1/3</span></div>
-        <div class="lv"><span class="lbl">Lv.</span> <span id="level">1</span></div>
+        <div class="lv"><span class="lbl">Lv. / LEVEL</span> <span id="level">1</span></div>
         <div id="xpbar" style="width:78px;height:5px;margin-top:3px;margin-left:auto;background:#0c1c14;border:1px solid #15351f;"><div id="xpfill" style="height:100%;width:0;background:linear-gradient(90deg,#1de98a,#3dffa0);box-shadow:0 0 8px rgba(61,255,160,.6);"></div></div>
       </div>
     </div>
@@ -143,60 +143,60 @@
     <div class="title-tag">CIVILIAN AG-DEFENSE NETWORK</div>
     <div class="title-main">GAIA<br>GUARD</div>
     <div class="title-sub">圃場防衛プロトコル</div>
-    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL2</div>
+    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL3</div>
     <div class="desc">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。<br>
       コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。<br>
       進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</div>
-    <div class="controls-hint">▸ スマホ:ドラッグ（機体は指の少し上）／PC:WASD推奨<br>▸ ヌシの火球は避けろ（被弾でスタッガー）</div>
+    <div class="controls-hint">▸ スマホ:指でなぞって移動（機体は指の少し上） / MOBILE: DRAG TO MOVE<br>▸ PC:WASD移動・スペースで射撃 / PC: WASD MOVE ・ SPACE FIRE<br>▸ 山のヌシの火球は避けろ / DODGE THE FIREBALLS</div>
     <div class="fire-row">
-      <span class="fire-lbl">射撃</span>
-      <button class="fmbtn active" id="fmAuto">オート</button>
-      <button class="fmbtn" id="fmManual">マニュアル</button>
-      <button class="fmbtn" id="soundBtn" style="margin-left:6px;">🔊 音</button>
+      <span class="fire-lbl">射撃 / FIRE</span>
+      <button class="fmbtn active" id="fmAuto">オート / AUTO</button>
+      <button class="fmbtn" id="fmManual">マニュアル / MANUAL</button>
+      <button class="fmbtn" id="soundBtn" style="margin-left:6px;">🔊 音 / SOUND</button>
     </div>
-    <div class="diff-note">オート=自動で連射（おすすめ・片手OK）／マニュアル=自分のタイミング（スマホ:右下FIRE / PC:スペース）</div>
-    <button class="btn" id="startBtn" style="margin-top:18px;">▶ 防衛開始</button>
-    <div class="diff-note">AREAが進むほど手強くなる。第5農園まで、守りきれるか</div>
+    <div class="diff-note">オート=自動連射 / AUTO=AUTO FIRE<br>マニュアル=右下FIRE・スペース / MANUAL=FIRE BUTTON・SPACE</div>
+    <button class="btn" id="startBtn" style="margin-top:18px;">▶ 防衛開始 / START</button>
+    <div class="diff-note">AREAが進むほど手強くなる / EACH AREA GETS TOUGHER</div>
   </div>
 
   <div id="clear" class="screen clear hidden">
-    <div class="title-tag">📡 INCOMING TRANSMISSION</div>
+    <div class="title-tag">📡 防衛成功 / AREA CLEAR</div>
     <div id="clearMsg" class="radio-msg"></div>
     <div class="stat-row">
-      <div class="stat">回収コイン<b id="clearScore">0</b></div>
-      <div class="stat">次のエリア<b id="nextArea">2</b></div>
+      <div class="stat">回収コイン / COINS<b id="clearScore">0</b></div>
+      <div class="stat">次のAREA / NEXT<b id="nextArea">2</b></div>
     </div>
     <div class="stat-row" style="margin-top:16px;">
-      <div class="stat">いまの子機<b><span id="shopCount">0</span> 機</b></div>
-      <div class="stat">購入コスト<b><span id="shopCost">40</span></b></div>
-      <div class="stat">シールド<b><span id="shopShield">0</span>/3</b></div>
+      <div class="stat">子機 / DRONES<b><span id="shopCount">0</span> 機</b></div>
+      <div class="stat">コスト / COST<b><span id="shopCost">40</span></b></div>
+      <div class="stat">シールド / SHIELD<b><span id="shopShield">0</span>/3</b></div>
     </div>
     <div id="shopMsg" class="diff-note" style="min-height:14px;color:var(--soft);margin-top:8px;"></div>
-    <button class="btn" id="buyDroneBtn" style="margin-top:6px;background:#36e0ff;color:var(--bg);box-shadow:4px 4px 0 #0a2630,0 0 20px rgba(54,224,255,.4);">＋ 子機を購入（コイン消費）</button>
-    <button class="btn" id="buyShieldBtn" style="margin-top:10px;background:#9dffce;color:var(--bg);box-shadow:4px 4px 0 #0c2a1c,0 0 20px rgba(157,255,206,.4);font-size:14px;">🛡 農園シールド購入（35）</button>
-    <div class="diff-note">シールドはプレイ中に1キーで発動・3秒無敵／使わず残すほどクリア時ボーナス</div>
-    <button class="btn d-normal" id="nextBtn" style="color:var(--bg);margin-top:12px;">▶ 次の農園へ</button>
+    <button class="btn" id="buyDroneBtn" style="margin-top:6px;background:#36e0ff;color:var(--bg);box-shadow:4px 4px 0 #0a2630,0 0 20px rgba(54,224,255,.4);">＋ 子機購入 / BUY DRONE</button>
+    <button class="btn" id="buyShieldBtn" style="margin-top:10px;background:#9dffce;color:var(--bg);box-shadow:4px 4px 0 #0c2a1c,0 0 20px rgba(157,255,206,.4);font-size:14px;">🛡 農園シールド / BUY SHIELD（35）</button>
+    <div class="diff-note">1キーで3秒無敵 / PRESS 1 FOR 3-SEC SHIELD<br>温存でボーナス / UNUSED SHIELDS GIVE A BONUS</div>
+    <button class="btn d-normal" id="nextBtn" style="color:var(--bg);margin-top:12px;">▶ 次の農園へ / NEXT</button>
   </div>
 
   <div id="gameover" class="screen gameover hidden">
     <div class="title-tag">圃場 LOST // MISSION FAILED</div>
-    <div class="title-main">防衛<br>失敗</div>
+    <div class="title-main">防衛失敗<br><span style="font-size:24px;">GAME OVER</span></div>
     <div id="overReason" style="color:#ffd24a;font-size:14px;margin:2px 0 10px;letter-spacing:1px;"></div>
     <div class="stat-row">
-      <div class="stat">回収コイン<b id="finalScore">0</b></div>
-      <div class="stat">到達AREA<b id="finalArea">1</b></div>
+      <div class="stat">回収コイン / COINS<b id="finalScore">0</b></div>
+      <div class="stat">到達AREA / REACHED<b id="finalArea">1</b></div>
     </div>
     <div id="overBonus" class="diff-note" style="min-height:14px;color:var(--soft);"></div>
     <div id="resultOver" class="diff-note" style="min-height:14px;color:var(--soft);margin-top:4px;"></div>
-    <button class="btn hidden" id="continueBtn" style="background:#ffcf3a;color:var(--bg);box-shadow:4px 4px 0 #2a210c,0 0 24px rgba(255,207,58,.4);">▶ コンティニュー（残り3回）</button>
-    <button class="btn" id="retryBtn" style="margin-top:12px;">↻ 最初から</button>
-    <button class="btn" id="toTitleBtn" style="margin-top:12px;background:#1a2a22;color:var(--text);box-shadow:4px 4px 0 #0c1a14;">タイトルへ</button>
+    <button class="btn hidden" id="continueBtn" style="background:#ffcf3a;color:var(--bg);box-shadow:4px 4px 0 #2a210c,0 0 24px rgba(255,207,58,.4);">▶ コンティニュー / CONTINUE（残り3回）</button>
+    <button class="btn" id="retryBtn" style="margin-top:12px;">↻ 最初から / RETRY</button>
+    <button class="btn" id="toTitleBtn" style="margin-top:12px;background:#1a2a22;color:var(--text);box-shadow:4px 4px 0 #0c1a14;">タイトルへ / TITLE</button>
   </div>
 
   <div id="ending" class="screen hidden" style="background:transparent;justify-content:flex-end;padding-bottom:56px;pointer-events:none;">
     <div id="resultEnd" style="font-size:12px;letter-spacing:1px;color:var(--soft);text-shadow:0 0 8px rgba(157,255,206,.5);min-height:16px;"></div>
     <div id="endBonus" style="font-size:12px;letter-spacing:1px;color:var(--soft);text-shadow:0 0 8px rgba(157,255,206,.5);min-height:16px;"></div>
-    <button class="btn" id="endRetry" style="pointer-events:auto;background:var(--coin);box-shadow:4px 4px 0 #2a210c,0 0 24px rgba(255,207,58,.4);">♥ もう一度 守る</button>
+    <button class="btn" id="endRetry" style="pointer-events:auto;background:var(--coin);box-shadow:4px 4px 0 #2a210c,0 0 24px rgba(255,207,58,.4);">♥ もう一度 守る / PLAY AGAIN</button>
   </div>
 
   <!-- オープニング演出 -->
@@ -204,7 +204,7 @@
     <!-- シーン①: 緊急着信 -->
     <div id="op-s1">
       <div id="op-card">
-        <div id="op-card-header">【緊急通報】農業防衛網</div>
+        <div id="op-card-header">【緊急通報】農業防衛網 / EMERGENCY CALL</div>
         <div id="op-card-body">
           <div class="op-line" id="op-noise"></div>
           <div class="op-line" id="op-l1"></div>
@@ -212,7 +212,7 @@
           <div class="op-line" id="op-l3"></div>
           <div class="op-line" id="op-l4"></div>
         </div>
-        <button class="btn hidden" id="op-respond" style="margin-top:18px;font-size:14px;letter-spacing:3px;padding:10px 28px;">応答する ▶</button>
+        <button class="btn hidden" id="op-respond" style="margin-top:18px;font-size:14px;letter-spacing:3px;padding:10px 28px;">応答する / RESPOND ▶</button>
       </div>
     </div>
     <!-- シーン②: ドローン同期 -->
@@ -220,22 +220,22 @@
       <div id="op-terminal">
         <div class="op-term-header">GAIA-NET // DRONE SYNC PROTOCOL</div>
         <div class="op-term-sep">────────────────────────────────</div>
-        <div class="op-term-line" id="ot1">&gt; パイロット認証</div>
-        <div class="op-term-line" id="ot2">&gt; ドローン #GG-01 発見</div>
-        <div class="op-term-line" id="ot3">&gt; 暗号チャンネル確立</div>
-        <div class="op-term-line" id="ot4">&gt; センサー較正中</div>
+        <div class="op-term-line" id="ot1">&gt; パイロット認証 / PILOT AUTH</div>
+        <div class="op-term-line" id="ot2">&gt; ドローン #GG-01 発見 / DRONE FOUND</div>
+        <div class="op-term-line" id="ot3">&gt; 暗号チャンネル確立 / LINK SECURED</div>
+        <div class="op-term-line" id="ot4">&gt; センサー較正中 / CALIBRATING</div>
         <div id="op-sync-wrap" class="hidden">
-          <span id="op-sync-label">同期率</span>
+          <span id="op-sync-label">同期率 / SYNC</span>
           <div id="op-sync-bar"><div id="op-sync-fill"></div></div>
           <span id="op-sync-pct">0%</span>
         </div>
-        <div id="op-sync-done" class="hidden">— 同期完了 —</div>
+        <div id="op-sync-done" class="hidden">— 同期完了 / SYNC COMPLETE —</div>
       </div>
     </div>
     <!-- シーン③: 出撃 -->
     <div id="op-s3" class="hidden">
-      <div id="op-launch-text">出撃</div>
-      <div id="op-launch-sub">ガーディアン、農園へ</div>
+      <div id="op-launch-text">出撃 / LAUNCH</div>
+      <div id="op-launch-sub">ガーディアン、農園へ / TO THE FARM</div>
     </div>
   </div>
 
@@ -372,10 +372,10 @@ function spawnTarget(area,waveIdx,ramp,fieldsLen,con){
 }
 // radio transmissions on mid-area clears (the poem is reserved for the TRUE ending only)
 const TRANSMISSIONS=[
-  'ザザッ…《統制室》第1圃場、防衛を確認。よくやった、ガーディアン。だが、これはまだ序章だ——次の農園へ向かえ。ザッ',
-  '…ノイズ…各地の畑から「ありがとう」の信号を受信中。網が、広がっている。最後の砦が近い。気を抜くな。ザザッ',
+  'ザザッ…《統制室》第1圃場、防衛を確認。よくやった、ガーディアン。だが、これはまだ序章だ——次の農園へ向かえ。ザッ / AREA 1 SECURED. PROCEED TO THE NEXT FARM.',
+  '…ノイズ…各地の畑から「ありがとう」の信号を受信中。網が、広がっている。最後の砦が近い。気を抜くな。ザザッ / AREA SECURED. THE FINAL FARM IS NEAR.',
 ];
-function transmissionFor(area){return TRANSMISSIONS[area-1]||('《統制室》第'+area+'圃場、確保を確認。ネットワーク拡張中——次の農園へ。ザッ');}
+function transmissionFor(area){return TRANSMISSIONS[area-1]||('《統制室》第'+area+'圃場、確保を確認。ネットワーク拡張中——次の農園へ。ザッ / AREA '+area+' SECURED. PROCEED TO THE NEXT FARM.');}
 
 const ENDING_BEATS=[
   {lines:['防衛プロトコル、完了。'],col:'#9dffce',size:22,dur:3.4},
@@ -386,7 +386,7 @@ const ENDING_BEATS=[
   {lines:['その あいだに立つことが、','あなたの役目。'],col:'#bfffe0',size:19,dur:3.8},
   {lines:['世界は、もう ひとりではない。'],col:'#9dffce',size:20,dur:3.6},
   {lines:['――わたしたちは、','同じ空を、','見上げているのだから。'],col:'#eafff4',size:20,dur:5.0},
-  {lines:['GAIA GUARD','圃場防衛プロトコル — 完'],col:'#3dffa0',size:28,dur:5.5,big:true},
+  {lines:['GAIA GUARD','圃場防衛プロトコル — 完 / THE END'],col:'#3dffa0',size:28,dur:5.5,big:true},
 ];
 function endingTotal(){return ENDING_BEATS.reduce((a,b)=>a+b.dur,0);}
 function endingBeat(p){let acc=0;for(const b of ENDING_BEATS){if(p<acc+b.dur){const l=p-acc,fd=0.7;
@@ -426,7 +426,7 @@ function onMove(e){if(!state||!state.running||state.phase==='ending')return;cons
 function onUp(){target.active=false;raw.show=false;pointerFiring=false;}
 cv.addEventListener('mousedown',onDown);cv.addEventListener('mousemove',onMove);window.addEventListener('mouseup',onUp);
 cv.addEventListener('touchstart',onDown,{passive:false});cv.addEventListener('touchmove',onMove,{passive:false});window.addEventListener('touchend',onUp);
-window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key.toLowerCase()==='x')fireBuffer=0.13;if(e.key==='1')activateShield();if(e.key.toLowerCase()==='m'){const sb=document.getElementById('soundBtn');const m=SND.toggle();if(sb)sb.textContent=m?'🔇 音':'🔊 音';if(!m&&state&&state.running)SND.bgmStart();}if(e.key===' ')e.preventDefault();});
+window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key.toLowerCase()==='x')fireBuffer=0.13;if(e.key==='1')activateShield();if(e.key.toLowerCase()==='m'){const sb=document.getElementById('soundBtn');const m=SND.toggle();if(sb)sb.textContent=m?'🔇 消音 / MUTED':'🔊 音 / SOUND';if(!m&&state&&state.running)SND.bgmStart();}if(e.key===' ')e.preventDefault();});
 window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 
 const TYPES={
@@ -509,7 +509,7 @@ function levelUp(){state.level++;state.coinsForNext=Math.floor(state.coinsForNex
   if(state.level%2===0)state.shots=Math.min(4,state.shots+1);
   if((state.level===4||state.level===8)&&state.options.length<3){
     addOption();floatText(state.player.x,state.player.y-46,'子機 +1','#36e0ff',16);}
-  if(state.level%5===0){state.maxLives=Math.min(5,state.maxLives+1);state.lives=state.maxLives;updateLives();floatText(state.player.x,state.player.y-64,'ライフ +1！','#ff6b6b',17);}
+  if(state.level%5===0){state.maxLives=Math.min(5,state.maxLives+1);state.lives=state.maxLives;updateLives();floatText(state.player.x,state.player.y-64,'ライフ / LIFE +1！','#ff6b6b',17);}
   floatText(state.player.x,state.player.y-26,'LEVEL UP! Lv.'+state.level,'#3dffa0',19);
   state.surge=1.1;SND.sfx.level();gaiaWave();}
 function addOption(){const n=state.options.length;state.options.push({ang:n*(6.283/3),dist:46,cd:0.3,x:state.player.x,y:state.player.y});}
@@ -524,22 +524,22 @@ function refreshShop(){if(!state)return;const cap=state.options.length>=3;
   document.getElementById('buyShieldBtn').style.opacity=scap?0.5:1;}
 // シールド購入（ストック+1、上限SHIELD_MAX）
 function buyShield(){if(!state)return;const msg=document.getElementById('shopMsg');
-  if(state.shieldStock>=SHIELD_MAX){msg.textContent='シールドは最大の'+SHIELD_MAX+'個です';return;}
-  if(state.score<SHIELD_COST){msg.textContent='コインが足りません（必要 '+SHIELD_COST+'）';return;}
+  if(state.shieldStock>=SHIELD_MAX){msg.textContent='シールドは最大の'+SHIELD_MAX+'個です / SHIELD STOCK FULL';return;}
+  if(state.score<SHIELD_COST){msg.textContent='コインが足りません（必要 '+SHIELD_COST+'） / NOT ENOUGH COINS';return;}
   state.score-=SHIELD_COST;state.shieldStock++;SND.sfx.buy();
-  msg.textContent='シールド補充！ 所持 '+state.shieldStock+' 個（プレイ中 1キーで発動）';
+  msg.textContent='シールド補充！ 所持 '+state.shieldStock+' 個 / SHIELD ADDED — PRESS 1 TO USE';
   refreshShop();updateShieldHUD();}
 // シールド発動：ストック-1で圃場がSHIELD_DURATION_SEC秒無敵。0なら不発
 // auto=true は自動発動（HP閾値割れ）。手動（1キー）も従来通り呼べる
 function activateShield(auto){
   if(!state||!state.running||state.phase==='ending')return;
   if(state.shieldT>0)return; // 発動中の重ねがけは消費しない
-  if(state.shieldStock<=0){if(!auto){SND.sfx.eshoot();floatText(state.player.x,state.player.y-26,'シールドなし','#5a7d6b',13);}return;}
+  if(state.shieldStock<=0){if(!auto){SND.sfx.eshoot();floatText(state.player.x,state.player.y-26,'シールドなし / NO SHIELD','#5a7d6b',13);}return;}
   state.shieldStock--;state.shieldT=SHIELD_DURATION_SEC;SND.sfx.buy();shake(3);
-  for(const f of aliveFields()){f.glow=1.2;floatText(f.x,f.y-f.r-12,auto?'自動シールド！':'シールド展開！','#36e0ff',14);}
+  for(const f of aliveFields()){f.glow=1.2;floatText(f.x,f.y-f.r-12,auto?'自動シールド / AUTO SHIELD！':'シールド展開 / SHIELD ON！','#36e0ff',14);}
   updateShieldHUD();}
 function updateShieldHUD(){if(!state)return;const el=document.getElementById('shieldHud');
-  if(el)el.textContent='シールド '+'◆'.repeat(state.shieldStock)+'◇'.repeat(Math.max(0,SHIELD_MAX-state.shieldStock))+(state.shieldT>0?' 展開中':'');}
+  if(el)el.textContent='シールド / SHIELD '+'◆'.repeat(state.shieldStock)+'◇'.repeat(Math.max(0,SHIELD_MAX-state.shieldStock))+(state.shieldT>0?' 展開中 / ACTIVE':'');}
 
 // ---- リザルト（返した数・農園ライフ%・自己ベスト）----
 // HUDの圃場INTEGRITYと同じ計算：生存圃場の合計hp ÷ 合計maxhp（%）
@@ -553,15 +553,15 @@ function buildResult(){
     const prev=raw===null?-1:(parseInt(raw,10)||0);
     const isNew=pct>prev;
     if(isNew)localStorage.setItem('gg_best_field_pct',String(pct));
-    bestTxt='　自己ベスト：'+Math.max(pct,prev<0?0:prev)+'%'+(isNew?'（更新！）':'');
+    bestTxt='　自己ベスト / BEST：'+Math.max(pct,prev<0?0:prev)+'%'+(isNew?'（更新 / NEW！）':'');
   }catch(e){}
-  return '返した数：'+state.returnedCount+'体　農園ライフ：'+pct+'%'+bestTxt;}
+  return '返した数 / RETURNED：'+state.returnedCount+'体　農園ライフ / FARM LIFE：'+pct+'%'+bestTxt;}
 function buyDrone(){if(!state)return;const msg=document.getElementById('shopMsg');
-  if(state.options.length>=3){msg.textContent='子機は最大の3機です';return;}
-  if(state.score<state.droneCost){msg.textContent='コインが足りません（必要 '+state.droneCost+'）';return;}
+  if(state.options.length>=3){msg.textContent='子機は最大の3機です / DRONE LIMIT REACHED';return;}
+  if(state.score<state.droneCost){msg.textContent='コインが足りません（必要 '+state.droneCost+'） / NOT ENOUGH COINS';return;}
   state.score-=state.droneCost;addOption();SND.sfx.buy();state.droneCost=Math.round(state.droneCost*1.6);
-  msg.textContent='配備完了！ 子機 '+state.options.length+' 機に';refreshShop();}
-function updateLives(){if(!state)return;const el=document.getElementById('lives');if(el)el.textContent='♥'.repeat(Math.max(0,state.lives))+'♡'.repeat(Math.max(0,state.maxLives-state.lives));}
+  msg.textContent='配備完了！ 子機 '+state.options.length+' 機に / DRONE DEPLOYED';refreshShop();}
+function updateLives(){if(!state)return;const el=document.getElementById('lives');if(el)el.textContent='ライフ / LIFE '+'♥'.repeat(Math.max(0,state.lives))+'♡'.repeat(Math.max(0,state.maxLives-state.lives));}
 function banner(text,sub,col,dur){state.banner=dur||2.0;state.bannerText=text;state.bannerSub=sub||'';state.bannerCol=col||'#3dffa0';}
 
 // ---- boss ----
@@ -601,7 +601,7 @@ function bossShoot(b,lowHp){
 }
 function bossBurst(b){
   const bn=state.bosses.length>1?12:16;for(let i=0;i<bn;i++){const ang=i/bn*6.283;state.bossShots.push({x:b.x,y:b.y,vx:Math.cos(ang)*205,vy:Math.sin(ang)*205,r:8,life:4});}
-  floatText(b.x,b.y-b.r-12,'咆哮！','#ff4d4d',16);SND.sfx.roar();shake(8);
+  floatText(b.x,b.y-b.r-12,'咆哮 / ROAR！','#ff4d4d',16);SND.sfx.roar();shake(8);
 }
 function bossUpdate(dt){if(!state.bosses.length)return;for(const b of state.bosses)bossStep(b,dt);updateBossBar();}
 function updateBossBar(){let h=0,m=0;for(const b of state.bosses){h+=Math.max(0,b.hp);m+=b.maxhp;}document.getElementById('bossbar-fill').style.width=Math.max(0,h/Math.max(1,m)*100)+'%';}
@@ -618,15 +618,15 @@ function bossStep(b,dt){const f=nearestField(b.x,b.y);
     b.chargeVX=Math.cos(b.facing)*sp;b.chargeVY=Math.sin(b.facing)*sp;b.timer=0.6;shake(5);}}
   else if(b.st==='charge'){b.x+=b.chargeVX*dt;b.y+=b.chargeVY*dt;b.timer-=dt;burst(b.x,b.y,'#ff7a2f',2);
     if(!f.dead && dist(b.x,b.y,f.x,f.y)<f.r+b.r){shake(11);burst(b.x,b.y,'#ff7a2f',16);
-      floatText(b.x,b.y-b.r-8,'はじかれた！','#ffe27a',15);b.st='recover';b.timer=lowHp?1.5:2.0;b.weakShown=false;b.chargeVX=b.chargeVY=0;
+      floatText(b.x,b.y-b.r-8,'はじかれた / BLOCKED！','#ffe27a',15);b.st='recover';b.timer=lowHp?1.5:2.0;b.weakShown=false;b.chargeVX=b.chargeVY=0;
       const a4=Math.atan2(b.y-f.y,b.x-f.x);b.x+=Math.cos(a4)*18;b.y+=Math.sin(a4)*18;}
     if(b.x<b.r||b.x>W-b.r){b.chargeVX*=-1;shake(4);}if(b.y<b.r||b.y>H-b.r){b.chargeVY*=-1;shake(4);}
     b.x=clamp(b.x,b.r,W-b.r);b.y=clamp(b.y,b.r,H-b.r);if(b.timer<=0){b.st='recover';b.timer=lowHp?1.4:1.9;b.weakShown=false;}}
-  else if(b.st==='recover'){if(!b.weakShown){b.weakShown=true;floatText(b.x,b.y-b.r-14,'弱点！いまだ','#ffe27a',15);}b.timer-=dt;if(b.timer<=0){b.st='idle';b.timer=rand(0.55,0.9);}}
+  else if(b.st==='recover'){if(!b.weakShown){b.weakShown=true;floatText(b.x,b.y-b.r-14,'弱点 / WEAK POINT！','#ffe27a',15);}b.timer-=dt;if(b.timer<=0){b.st='idle';b.timer=rand(0.55,0.9);}}
   // summon + ranged attack (only the boss can hit the player)
   b.summonCd-=dt;
   if(b.summonCd<=0 && b.st!=='enter'){b.summonCd=(lowHp?3.4:5.2)/state.D.aggro*state.bosses.length;const n=Math.max(1,Math.round(((lowHp?3:2)+Math.floor((state.area-1)/2))/state.bosses.length));
-    for(let i=0;i<n;i++)spawnEnemy(Math.random()>0.5?'crow':'deer');floatText(b.x,b.y-b.r-10,'仲間を呼んだ！','#ff9b3d',13);}
+    for(let i=0;i<n;i++)spawnEnemy(Math.random()>0.5?'crow':'deer');floatText(b.x,b.y-b.r-10,'仲間を呼んだ / REINFORCEMENTS！','#ff9b3d',13);}
   b.shootCd-=dt;
   if(b.shootCd<=0 && (b.st==='idle'||b.st==='recover'||b.st==='telegraph'))bossShoot(b,lowHp);
   if(lowHp && b.st!=='enter'){b.burstCd-=dt;if(b.burstCd<=0){b.burstCd=4.2/state.D.aggro;bossBurst(b);}}
@@ -637,7 +637,7 @@ function bossStep(b,dt){const f=nearestField(b.x,b.y);
   if(pp.stagger<=0 && pp.cgrace<=0 && state.surge<=0 && (b.st==='charge'||b.st==='telegraph') && dist(b.x,b.y,pp.x,pp.y)<b.r+pp.r){
     pp.stagger=1.0;pp.cgrace=1.8;pp.invuln=Math.max(pp.invuln,0.6);pp.flash=.3;
     const a3=Math.atan2(pp.y-b.y,pp.x-b.x);pp.kx=Math.cos(a3)*360;pp.ky=Math.sin(a3)*360;
-    shake(9);SND.sfx.stagger();floatText(pp.x,pp.y-26,'スタン！','#ff7a2f',15);}
+    shake(9);SND.sfx.stagger();floatText(pp.x,pp.y-26,'スタン / STUN！','#ff7a2f',15);}
 }
 function bossHit(b,dmg,bx,by){
   let mul=(b.st==='recover')?2.6:((b.st==='charge'||b.st==='telegraph')?0.30:0.5);
@@ -645,11 +645,11 @@ function bossHit(b,dmg,bx,by){
   if(blocked){ // 盾に弾かれる：25%だけ通る＋青い火花
     mul*=SHIELD_PASS;b.shieldHit=0.18;
     for(let i=0;i<3;i++)state.parts.push(part(bx,by,'#8fdcff',rand(40,110),.12,1.8));
-    if(Math.random()<0.08)floatText(bx,by-10,'弾かれた','#8fdcff',12);
+    if(Math.random()<0.08)floatText(bx,by-10,'弾かれた / DEFLECTED','#8fdcff',12);
   }
   b.hp-=dmg*mul;const weak=mul>1;if(weak)SND.sfx.weak();b.flash=Math.max(b.flash,weak?0.2:0.08);
   if(!blocked){const n=weak?7:2;for(let i=0;i<n;i++)state.parts.push(part(bx,by,weak?(i%2?'#ffe27a':'#fff3c0'):'#fff',rand(30,weak?150:80),.14,weak?2.6:1.6));}
-  if(weak&&Math.random()<0.12)floatText(bx,by-10,'大ダメージ！','#ffe27a',14);
+  if(weak&&Math.random()<0.12)floatText(bx,by-10,'大ダメージ / CRITICAL！','#ffe27a',14);
   if(b.hp<=0)killBoss(b);}
 function killBoss(b){
   const idx=state.bosses.indexOf(b);if(idx>=0)state.bosses.splice(idx,1);
@@ -658,14 +658,14 @@ function killBoss(b){
   const fx=(state.field?state.field.x:W/2);
   for(let i=0;i<28;i++){const x=fx+rand(-90,90);state.coins.push({x,y:-rand(20,260),vx:rand(-30,30),vy:rand(20,80),r:7,spin:rand(0,6.28),life:11});}
   shake(16);SND.sfx.down();
-  if(state.bosses.length===0)bossCleared();else floatText(b.x,b.y-60,'残り '+state.bosses.length+' 体','#ffe27a',16);
+  if(state.bosses.length===0)bossCleared();else floatText(b.x,b.y-60,'残り / REMAINING '+state.bosses.length+' 体','#ffe27a',16);
 }
 function bossCleared(){
   state.bossShots.length=0;SND.bgmBoss(false);document.getElementById('bossbar-wrap').style.display='none';
   bossTint.style.background='radial-gradient(ellipse at center,rgba(255,40,40,0),rgba(120,0,0,0))';
   state.phase='clearing';state.banner=0;
-  if(state.area>=FINAL_AREA){banner('世界が、よみがえる','ありがとう','#9dffce',2.4);setTimeout(startEnding,2400);}
-  else{banner('山のヌシ お山へ帰った','交信あり…','#9dffce',2.6);setTimeout(stageClear,2600);}
+  if(state.area>=FINAL_AREA){banner('世界が、よみがえる','ありがとう / MISSION COMPLETE','#9dffce',2.4);setTimeout(startEnding,2400);}
+  else{banner('山のヌシ お山へ帰った','交信あり / AREA CLEAR','#9dffce',2.6);setTimeout(stageClear,2600);}
 }
 function stageClear(){
   if(!state||!state.running)return;state.running=false;SND.sfx.clear();document.getElementById('fireBtn').classList.add('hidden');
@@ -682,7 +682,7 @@ function startEnding(){
   // シールド温存ボーナス（クリア＝ラン終了なので確定加算）
   document.getElementById('resultEnd').textContent=buildResult(); // 圃場が生きているうちに集計
   {const sb=s.shieldStock*SHIELD_BONUS;if(sb>0)s.score+=sb;
-    document.getElementById('endBonus').textContent=sb>0?('シールド温存ボーナス +'+sb+'（最終スコア '+s.score+'）'):('最終スコア '+s.score);}
+    document.getElementById('endBonus').textContent=sb>0?('シールド温存ボーナス / SHIELD BONUS +'+sb+'（最終スコア / FINAL SCORE '+s.score+'）'):('最終スコア / FINAL SCORE '+s.score);}
   s.enemies.length=0;s.bullets.length=0;s.coins.length=0;s.parts.length=0;s.floats.length=0;s.gwaves.length=0;s.bossShots.length=0;
   document.getElementById('hud').classList.add('hidden');document.getElementById('bossbar-wrap').style.display='none';
   bossTint.style.background='radial-gradient(ellipse at center,rgba(255,40,40,0),rgba(120,0,0,0))';
@@ -713,10 +713,10 @@ function aliveFields(){return state.fields.filter(f=>!f.dead);}
 function nearestField(x,y){const af=aliveFields();if(!af.length)return state.fields[0];let b=af[0],bd=1e18;for(const f of af){const d=(f.x-x)*(f.x-x)+(f.y-y)*(f.y-y);if(d<bd){bd=d;b=f;}}return b;}
 function damageField(f,amt){if(f.dead)return;
   if(state&&state.shieldT>0){f.glow=Math.max(f.glow,0.8);return;} // シールド中は無効（点灯のみ）
-  f.hp-=amt;f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
+  f.hp-=amt;f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
 
 // ---- stage flow ----
-function seedStartCoins(){for(let i=0;i<11;i++){const a=rand(0,6.283),d=rand(60,150),cx=W/2+Math.cos(a)*d,cy=H*0.52+Math.sin(a)*d;state.coins.push({x:clamp(cx,20,W-20),y:clamp(cy,20,H-20),vx:0,vy:0,r:7,spin:rand(0,6.28),life:16});}floatText(W/2,H*0.52-70,'コインを拾って強くなろう！','#ffe45c',15);}
+function seedStartCoins(){for(let i=0;i<11;i++){const a=rand(0,6.283),d=rand(60,150),cx=W/2+Math.cos(a)*d,cy=H*0.52+Math.sin(a)*d;state.coins.push({x:clamp(cx,20,W-20),y:clamp(cy,20,H-20),vx:0,vy:0,r:7,spin:rand(0,6.28),life:16});}floatText(W/2,H*0.52-70,'コインを拾って強くなろう / COLLECT COINS！','#ffe45c',13);}
 function startArea(){
   state.D=areaDiff(state.area);state.wavesPerArea=state.D.waves;
   state.phase='wave';state.waveIdx=1;state.bosses=[];state.enemies.length=0;state.bullets.length=0;state.bossShots.length=0;
@@ -726,7 +726,7 @@ function startArea(){
   document.getElementById('area').textContent=state.area;
   document.getElementById('areamax').textContent=FINAL_AREA;
   document.getElementById('wave').textContent='1/'+state.wavesPerArea;
-  banner('AREA '+state.area+' / '+FINAL_AREA,'圃場防衛 開始','#36e0ff',2.0);
+  banner('AREA '+state.area+' / '+FINAL_AREA,'圃場防衛 開始 / DEFENSE START','#36e0ff',2.0);
 }
 function nextWaveOrBoss(){
   if(state.waveIdx<state.wavesPerArea){state.waveIdx++;state.waveTime=-2.5;
@@ -831,7 +831,7 @@ function update(dt){
     if(sh.life<=0||sh.x<-30||sh.x>W+30||sh.y<-30||sh.y>H+30){s.bossShots.splice(i,1);continue;}
     if(p.invuln<=0 && s.surge<=0 && dist(sh.x,sh.y,p.x,p.y)<p.r+sh.r){
       s.lives--;p.invuln=1.4;p.stagger=0.9;p.cgrace=0.9;p.flash=.3;const a=Math.atan2(p.y-sh.y,p.x-sh.x);p.kx=Math.cos(a)*330;p.ky=Math.sin(a)*330;
-      shake(11);SND.sfx.stagger();burst(p.x,p.y,'#ff4d4d',18);floatText(p.x,p.y-26,'被弾！ 残り'+Math.max(0,s.lives),'#ff4d4d',16);
+      shake(11);SND.sfx.stagger();burst(p.x,p.y,'#ff4d4d',18);floatText(p.x,p.y-26,'被弾 / HIT！ 残り / LIFE '+Math.max(0,s.lives),'#ff4d4d',16);
       updateLives();hitFlash();s.bossShots.splice(i,1);if(s.lives<=0){state.deathCause='drone';gameOver();return;}}
   }
 
@@ -865,7 +865,7 @@ function update(dt){
     if(!e.returning && p.stagger<=0 && p.cgrace<=0 && s.surge<=0 && dist(e.x,e.y,p.x,p.y)<e.r+p.r){
       p.stagger=1.0;p.cgrace=1.8;p.invuln=Math.max(p.invuln,0.6);p.flash=.3;
       const a2=Math.atan2(p.y-e.y,p.x-e.x);p.kx=Math.cos(a2)*300;p.ky=Math.sin(a2)*300;e.x-=Math.cos(a2)*22;e.y-=Math.sin(a2)*22;
-      shake(8);SND.sfx.stagger();floatText(p.x,p.y-26,'スタン！','#ff7a2f',15);}
+      shake(8);SND.sfx.stagger();floatText(p.x,p.y-26,'スタン / STUN！','#ff7a2f',15);}
     if(!tf.dead && dist(e.x,e.y,tf.x,tf.y)<tf.r+e.r){const fieldDmg=Math.max(1,Math.round(t.dmg*areaTune(s.area).fieldDamageMul));
       damageField(tf,fieldDmg);shake(t.tank?9:4);burst(e.x,e.y,'#ff4d4d',10);
       dropCoins(e.x,e.y,t.tank?2:1);floatText(tf.x,tf.y-tf.r-6,'-'+fieldDmg,'#ff6b6b',14);s.enemies.splice(i,1);if(aliveFields().length===0){state.deathCause='fields';gameOver();return;}}}
@@ -875,9 +875,9 @@ function update(dt){
     if(d<s.pickup){const a=Math.atan2(p.y-c.y,p.x-c.x);const pull=clamp((s.pickup-d)/s.pickup,0,1)*560;c.x+=Math.cos(a)*pull*dt;c.y+=Math.sin(a)*pull*dt;}
     if(d<p.r+c.r){s.score++;s.coinsForNext--;s.combo++;s.comboTimer=3;SND.sfx.coin(s.combo);
       document.getElementById('score').textContent=s.score;
-      document.getElementById('combo').textContent=s.combo>1?('★ '+s.combo+' コンボ'):'';
+      document.getElementById('combo').textContent=s.combo>1?('★ '+s.combo+' コンボ / COMBO'):'';
       s.parts.push(part(c.x,c.y,'#ffcf3a',rand(30,90),.2,2));s.coins.splice(i,1);
-      if(s.combo%10===0){floatText(s.player.x,s.player.y-42,'コンボ '+s.combo+'！','#9dffce',16);}
+      if(s.combo%10===0){floatText(s.player.x,s.player.y-42,'コンボ / COMBO '+s.combo+'！','#9dffce',16);}
       if(s.coinsForNext<=0)levelUp();continue;}
     if(c.life<=0)s.coins.splice(i,1);}
 
@@ -952,8 +952,8 @@ function drawBossWarn(s){
   // warning text band
   ctx.textAlign='center';ctx.globalAlpha=0.6+0.4*Math.abs(Math.sin(performance.now()/120));
   ctx.font="26px 'DotGothic16',monospace";ctx.fillStyle='#ff4d4d';ctx.shadowColor='#ff2b2b';ctx.shadowBlur=18;
-  ctx.fillText('⚠ 警告 ⚠',W/2,H*0.16);
-  ctx.font="14px 'DotGothic16',monospace";ctx.fillText('地ひびき……山のヌシ、接近',W/2,H*0.16+26);
+  ctx.fillText('⚠ 警告 / WARNING ⚠',W/2,H*0.16);
+  ctx.font="13px 'DotGothic16',monospace";ctx.fillText('山のヌシ、接近 / BOSS APPROACHING',W/2,H*0.16+26);
   ctx.shadowBlur=0;ctx.globalAlpha=1;ctx.textAlign='left';
   // approaching silhouette + glowing eyes descending from the dark
   const ey=-40+prog*(H*0.30+40);const sz=4+prog*12;
@@ -978,7 +978,7 @@ function drawField(f,t){
   ctx.beginPath();ctx.arc(0,0,f.r,0,6.28);ctx.stroke();ctx.shadowBlur=0;
   ctx.strokeStyle='rgba(54,224,255,0.5)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,f.r-4,t*1.4,t*1.4+1.0);ctx.stroke();
   const hpf=clamp(f.hp/f.maxhp,0,1);
-  if(hpf<0.34){const bl=0.5+0.5*Math.sin(t*8);ctx.save();ctx.globalAlpha=bl;ctx.fillStyle='#ff5f3c';ctx.font='bold 13px DotGothic16, monospace';ctx.textAlign='center';ctx.fillText('危険',0,-f.r-14);ctx.restore();}
+  if(hpf<0.34){const bl=0.5+0.5*Math.sin(t*8);ctx.save();ctx.globalAlpha=bl;ctx.fillStyle='#ff5f3c';ctx.font='bold 13px DotGothic16, monospace';ctx.textAlign='center';ctx.fillText('危険 / DANGER',0,-f.r-14);ctx.restore();}
   ctx.lineWidth=4;ctx.strokeStyle=hpf>0.5?'#3dffa0':(hpf>0.25?'#ffd24a':'#ff5f3c');
   ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(0,0,f.r+9,-1.5708,-1.5708+hpf*6.283);ctx.stroke();ctx.shadowBlur=0;
   ctx.restore();}
@@ -1192,7 +1192,7 @@ function startGame(){
 function nextStage(){state.area++;state.running=true;document.getElementById('clear').classList.add('hidden');
   document.getElementById('hud').classList.remove('hidden');startArea();}
 // HUDのコンティニュー残数表示
-function updateContinueHUD(){const el=document.getElementById('continueHud');if(el&&state)el.textContent='つづき残 '+state.continues;updateShieldHUD();}
+function updateContinueHUD(){const el=document.getElementById('continueHud');if(el&&state)el.textContent='つづき残 / CONTINUES: '+state.continues;updateShieldHUD();}
 // コンティニュー：負けたエリアの頭から再開。area/scoreは維持、ドローン強化を基準レベル方式で再現
 function continueGame(){
   if(!state||state.continues<=0)return;
@@ -1227,15 +1227,15 @@ function continueGame(){
   startArea(); // 負けたエリアの頭から
 }
 function gameOver(){state.running=false;SND.sfx.over();SND.bgmStop();shake(14);document.getElementById('bossbar-wrap').style.display='none';document.getElementById('fireBtn').classList.add('hidden');
-  document.getElementById('overReason').textContent=(state.deathCause==='fields')?'すべての農園が陥落しました':'ドローンが撃墜されました（ライフ 0）';
+  document.getElementById('overReason').textContent=(state.deathCause==='fields')?'すべての農園が陥落しました / ALL FARMS LOST':'ドローンが撃墜されました（ライフ 0） / DRONE DOWN';
   // 温存ボーナスは表示のみ加算（コンティニュー時にscoreを汚さないため）
   {const sb=state.shieldStock*SHIELD_BONUS;
     document.getElementById('finalScore').textContent=state.score+sb;
-    document.getElementById('overBonus').textContent=sb>0?('うち シールド温存ボーナス +'+sb):'';}
+    document.getElementById('overBonus').textContent=sb>0?('うち シールド温存ボーナス / SHIELD BONUS +'+sb):'';}
   document.getElementById('resultOver').textContent=buildResult();
   document.getElementById('finalArea').textContent=state.area;
   const cb=document.getElementById('continueBtn');
-  if(state.continues>0){cb.classList.remove('hidden');cb.textContent='▶ コンティニュー（残り'+state.continues+'回）';}
+  if(state.continues>0){cb.classList.remove('hidden');cb.textContent='▶ コンティニュー / CONTINUE（残り '+state.continues+' / LEFT）';}
   else cb.classList.add('hidden');
   document.getElementById('hud').classList.add('hidden');setTimeout(()=>document.getElementById('gameover').classList.remove('hidden'),500);}
 function showTitle(){SND.bgmStop();state=null;hideScreens();document.getElementById('hud').classList.add('hidden');document.getElementById('fireBtn').classList.add('hidden');
@@ -1254,7 +1254,7 @@ fireBtn.addEventListener('touchend',fbUp);fireBtn.addEventListener('touchcancel'
 fireBtn.addEventListener('mousedown',fbDown);window.addEventListener('mouseup',()=>{fireBtnHeld=false;});
 const _unlock=()=>{SND.unlock();window.removeEventListener('pointerdown',_unlock);window.removeEventListener('touchstart',_unlock);};
 window.addEventListener('pointerdown',_unlock,{passive:true});window.addEventListener('touchstart',_unlock,{passive:true});
-const soundBtn=document.getElementById('soundBtn');soundBtn.addEventListener('click',()=>{SND.unlock();const m=SND.toggle();soundBtn.textContent=m?'🔇 音':'🔊 音';if(!m&&state&&state.running)SND.bgmStart();});
+const soundBtn=document.getElementById('soundBtn');soundBtn.addEventListener('click',()=>{SND.unlock();const m=SND.toggle();soundBtn.textContent=m?'🔇 消音 / MUTED':'🔊 音 / SOUND';if(!m&&state&&state.running)SND.bgmStart();});
 document.getElementById('startBtn').addEventListener('click',()=>startOpening());
 document.getElementById('retryBtn').addEventListener('click',()=>startGame());
 document.getElementById('continueBtn').addEventListener('click',()=>continueGame());
