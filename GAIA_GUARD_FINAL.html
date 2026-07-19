@@ -147,7 +147,7 @@
     <div class="desc">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。<br>
       コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。<br>
       進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</div>
-    <div class="controls-hint">▸ スマホ:指でなぞって移動（機体は指の少し上） / MOBILE: DRAG TO MOVE<br>▸ PC:WASD移動・スペースで射撃 / PC: WASD MOVE ・ SPACE FIRE<br>▸ 山のヌシの火球は避けろ / DODGE THE FIREBALLS</div>
+    <div class="controls-hint">▸ スマホ:指でなぞって移動（機体は指の少し上） / MOBILE: DRAG TO MOVE<br>▸ PC:WASD移動・スペースで射撃 / PC: WASD MOVE ・ SPACE FIRE<br>▸ 農園シールドは危険時に自動展開 / FARM SHIELDS ACTIVATE AUTOMATICALLY<br>▸ 山のヌシの火球・突進はライフ減少 / DODGE BOSS ATTACKS</div>
     <div class="fire-row">
       <span class="fire-lbl">射撃 / FIRE</span>
       <button class="fmbtn active" id="fmAuto">オート / AUTO</button>
@@ -169,12 +169,12 @@
     <div class="stat-row" style="margin-top:16px;">
       <div class="stat">子機 / DRONES<b><span id="shopCount">0</span> 機</b></div>
       <div class="stat">コスト / COST<b><span id="shopCost">40</span></b></div>
-      <div class="stat">シールド / SHIELD<b><span id="shopShield">0</span>/3</b></div>
+      <div class="stat">シールド / SHIELD<b><span id="shopShield">0</span>/<span id="shopShieldMax">3</span></b></div>
     </div>
     <div id="shopMsg" class="diff-note" style="min-height:14px;color:var(--soft);margin-top:8px;"></div>
     <button class="btn" id="buyDroneBtn" style="margin-top:6px;background:#36e0ff;color:var(--bg);box-shadow:4px 4px 0 #0a2630,0 0 20px rgba(54,224,255,.4);">＋ 子機購入 / BUY DRONE</button>
     <button class="btn" id="buyShieldBtn" style="margin-top:10px;background:#9dffce;color:var(--bg);box-shadow:4px 4px 0 #0c2a1c,0 0 20px rgba(157,255,206,.4);font-size:14px;">🛡 農園シールド / BUY SHIELD（35）</button>
-    <div class="diff-note">1キーで3秒無敵 / PRESS 1 FOR 3-SEC SHIELD<br>温存でボーナス / UNUSED SHIELDS GIVE A BONUS</div>
+    <div class="diff-note">危険時に自動展開（AREA 5は最大5個・WAVE 2以降・6秒） / AUTO SHIELD<br>温存でボーナス / UNUSED SHIELDS GIVE A BONUS</div>
     <button class="btn d-normal" id="nextBtn" style="color:var(--bg);margin-top:12px;">▶ 次の農園へ / NEXT</button>
   </div>
 
@@ -309,11 +309,13 @@ const FINAL_AREA=5;
 // ---- エリア別 難易度チューニング表（シールド前提で緊張感を出す係数。ここだけ触れば調整可）----
 // spawnMul:敵出現数の倍率 / bossHpMul:ヌシHP倍率 / bossAggroMul:ヌシ攻撃頻度倍率
 const AREA_TUNE={
-  1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05, fieldDamageMul:0.80},
-  2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10, fieldDamageMul:0.90},
-  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00},
-  4:{spawnMul:1.33, bossHpMul:1.35, bossAggroMul:1.22, fieldDamageMul:1.00},  // ここから本格的な緊張帯
-  5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25, fieldDamageMul:1.00},  // 最終は微増に留め特別感を維持
+  1:{spawnMul:1.20, bossHpMul:1.10, bossAggroMul:1.05, fieldDamageMul:0.80, fieldHpMul:1.00, raidIntervalMul:1.00, raidExtraChance:0.45, warnSpawnMul:1.00, bossDurabilityMul:1.70, bossMinionMul:0.75, bossFieldDamageMul:0.65},
+  2:{spawnMul:1.25, bossHpMul:1.15, bossAggroMul:1.10, fieldDamageMul:0.90, fieldHpMul:1.00, raidIntervalMul:1.00, raidExtraChance:0.45, warnSpawnMul:1.00, bossDurabilityMul:1.70, bossMinionMul:0.75, bossFieldDamageMul:0.65},
+  3:{spawnMul:1.30, bossHpMul:1.25, bossAggroMul:1.18, fieldDamageMul:1.00, fieldHpMul:1.00, raidIntervalMul:1.00, raidExtraChance:0.45, warnSpawnMul:1.00, bossDurabilityMul:1.82, bossMinionMul:0.70, bossFieldDamageMul:0.60},
+  // AREA 4: AREA 3より敵は多いまま、農園防衛に判断とシールドが間に合う余白を作る。
+  4:{spawnMul:1.20, bossHpMul:1.28, bossAggroMul:1.15, fieldDamageMul:0.75, fieldHpMul:1.27, raidIntervalMul:1.25, raidExtraChance:0.25, warnSpawnMul:0.70, bossDurabilityMul:1.84, bossMinionMul:0.55, bossFieldDamageMul:0.55},
+  // AREA 5: シールドを使えばヌシまで届く最終防衛。物量は維持しつつ農園への瞬間集中を抑える。
+  5:{spawnMul:1.35, bossHpMul:1.40, bossAggroMul:1.25, fieldDamageMul:0.85, fieldHpMul:1.20, raidIntervalMul:1.20, raidExtraChance:0.25, warnSpawnMul:0.75, bossDurabilityMul:1.86, bossMinionMul:0.70, bossFieldDamageMul:0.60},  // 最終は特別な高難度帯
 };
 function areaTune(a){return AREA_TUNE[a]||AREA_TUNE[5];}
 
@@ -348,8 +350,12 @@ function baseLevel(area){return [1,1,4,7,10,13][area]||1;}
 const SHIELD_DURATION_SEC=3; // 発動時の圃場無敵秒数（調整用）
 const SHIELD_COST=35;        // ショップ購入コスト（固定）
 const SHIELD_MAX=3;          // 所持上限
+const SHIELD_MAX_AREA5=5;    // 最終AREAだけ所持上限を拡張
 const SHIELD_BONUS=30;       // ラン終了時 未使用1個あたりの温存ボーナス
-const SHIELD_AUTO_THRESHOLD=0.30; // 圃場HP合計がこの割合を切ると自動発動（スマホ・オート向け）
+const SHIELD_AUTO_THRESHOLD=0.30; // 通常AREAの自動発動ライン
+function shieldDurationForArea(area){return area===5?6.0:(area===4?4.5:SHIELD_DURATION_SEC);}
+function shieldAutoThresholdForArea(area){return area===5?0.45:SHIELD_AUTO_THRESHOLD;}
+function shieldCapacity(){return state&&(state.area>=5||(!state.running&&state.area===4))?SHIELD_MAX_AREA5:SHIELD_MAX;}
 
 // ---- spawn pacing（右肩上がりの緊張カーブ）----
 // 「一定数を維持」ではなく「開始は控えめ→ウェーブと時間で増え続け→ヌシ直前が最高潮」。
@@ -406,9 +412,9 @@ function newState(){
     continues:3,shieldStock:0,shieldT:0,returnedCount:0,
     score:0,level:1,area:1,waveIdx:1,wavesPerArea:D.waves,combo:0,comboTimer:0,
     coinsForNext:4,droneCost:40,fireCd:0,fireRate:0.34,dmg:1,shots:1,pickup:82,surge:0,
-    spawnAcc:0,spawnGap:0.5,raidAcc:0,waveBreak:0,waveTime:0,
+    spawnAcc:0,spawnGap:0.5,raidAcc:0,stage1BirdRaidMask:0,stage5ShieldWaveUses:[0,0,0,0,0],waveBreak:0,waveTime:0,
     shake:0,banner:0,bannerText:'',bannerSub:'',bannerCol:'#3dffa0',
-    bossWarn:0,bossWarnMax:3.0,warnStep:0,ending:null,
+    bossWarn:0,bossWarnMax:3.0,warnStep:0,fieldTargetSeq:0,lowerFieldHits:0,upperPressurePending:false,ending:null,
   };
 }
 
@@ -426,7 +432,7 @@ function onMove(e){if(!state||!state.running||state.phase==='ending')return;cons
 function onUp(){target.active=false;raw.show=false;pointerFiring=false;}
 cv.addEventListener('mousedown',onDown);cv.addEventListener('mousemove',onMove);window.addEventListener('mouseup',onUp);
 cv.addEventListener('touchstart',onDown,{passive:false});cv.addEventListener('touchmove',onMove,{passive:false});window.addEventListener('touchend',onUp);
-window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key.toLowerCase()==='x')fireBuffer=0.13;if(e.key==='1')activateShield();if(e.key.toLowerCase()==='m'){const sb=document.getElementById('soundBtn');const m=SND.toggle();if(sb)sb.textContent=m?'🔇 消音 / MUTED':'🔊 音 / SOUND';if(!m&&state&&state.running)SND.bgmStart();}if(e.key===' ')e.preventDefault();});
+window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key.toLowerCase()==='x')fireBuffer=0.13;if(e.key.toLowerCase()==='m'){const sb=document.getElementById('soundBtn');const m=SND.toggle();if(sb)sb.textContent=m?'🔇 消音 / MUTED':'🔊 音 / SOUND';if(!m&&state&&state.running)SND.bgmStart();}if(e.key===' ')e.preventDefault();});
 window.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 
 const TYPES={
@@ -441,7 +447,7 @@ function pickEnemy(){const roll=Math.random();if(state.waveIdx>=2&&roll>0.84)ret
 function spawnRaider(){ // 農園のすぐ近くに出現→即・畑へ突撃（序盤から農園を狙わせる）
   const af=state.fields?state.fields.filter(f=>!f.dead):[];if(!af.length)return;
   const key=pickEnemy();const t=TYPES[key],D=state.D;
-  const tf=af[Math.floor(Math.random()*af.length)];
+  const tf=pickAttackField();
   const ang=rand(0,6.283),d=tf.r+rand(40,110);
   const x=clamp(tf.x+Math.cos(ang)*d,18,W-18),y=clamp(tf.y+Math.sin(ang)*d,18,H-18);
   const hpScale=(1+(state.area-1)*0.22+(state.waveIdx-1)*0.08+(state.level-1)*0.07)*D.ehp;
@@ -449,15 +455,37 @@ function spawnRaider(){ // 農園のすぐ近くに出現→即・畑へ突撃�
   const shooter=(key==='deer')||(key==='boar'&&state.area>=2);
   state.enemies.push({x,y,type:key,hp:t.hp*hpScale,maxhp:t.hp*hpScale,r:t.r,
     speed:t.speed*spScale*rand(.92,1.16),wob:rand(0,6.28),flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
-    shooter,shootCd:rand(1.8,3.4),appear:0.5,diveCd:rand(2.5,5.5),dive:0});
+    shooter,shootCd:rand(1.8,3.4),appear:0.5,diveCd:rand(2.5,5.5),dive:0,targetField:tf});
+}
+// AREA 1の演出：鳥の編隊が開始直後と中盤に農園へ奇襲する。
+function spawnBirdSquad(count,midRaid){
+  const tf=aliveFields()[0];if(!tf)return;
+  const t=TYPES.crow,D=state.D,baseAng=midRaid?Math.PI:-Math.PI/2;
+  for(let i=0;i<count;i++){
+    const slot=i-(count-1)/2,ang=baseAng+slot*0.19,d=tf.r+42+Math.abs(slot)*13,lead=i===Math.floor(count/2),birdHp=lead?999:t.hp*D.ehp;
+    state.enemies.push({x:clamp(tf.x+Math.cos(ang)*d,18,W-18),y:clamp(tf.y+Math.sin(ang)*d,18,H-18),type:'crow',hp:birdHp,maxhp:birdHp,r:t.r,
+      speed:t.speed*D.espd*1.18,wob:i*0.7,flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
+      shooter:false,shootCd:99,appear:0.16+i*0.045,diveCd:0.9+i*0.08,dive:0,targetField:tf,birdSquad:true,scriptedFarmStrike:lead});
+  }
+  // 奇襲は鳥の動きだけで見せ、画面を覆う文字は表示しない。
+  SND.sfx.warn();shake(8);
+}
+// 下側が3回被弾した後、上側へ必ず1回届くカウンター奇襲。
+function spawnUpperCounterRaider(upper){
+  if(!upper||upper.dead)return;
+  const t=TYPES.crow,D=state.D,d=upper.r+20;
+  state.enemies.push({x:upper.x,y:clamp(upper.y-d,18,H-18),type:'crow',hp:999,maxhp:999,r:t.r,
+    speed:t.speed*D.espd*1.5,wob:0,flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
+    shooter:false,shootCd:99,appear:0.22,diveCd:99,dive:0,targetField:upper,scriptedUpperStrike:true});
+  floatText(upper.x,upper.y-upper.r-12,'上側へ奇襲！ / UPPER STRIKE！','#ff5f3c',15);shake(5);
 }
 function spawnEnemy(key,forceTeleport){
-  const t=TYPES[key],D=state.D;let x,y,appear=0;
+  const t=TYPES[key],D=state.D,attackField=pickAttackField();let x,y,appear=0;
   if(forceTeleport||Math.random()<Math.min(0.6,0.4+(state.area-1)*0.08)){
     const raidChance=Math.min(0.78,0.42+(state.area-1)*0.09); // 農園急襲の割合（序盤から畑を狙う）
     const af=state.fields?state.fields.filter(f=>!f.dead):[];
     if(af.length && Math.random()<raidChance){
-      const tf=af[Math.floor(Math.random()*af.length)];
+      const tf=attackField;
       const ang=rand(0,6.283),d=tf.r+rand(48,124);
       x=clamp(tf.x+Math.cos(ang)*d,18,W-18);y=clamp(tf.y+Math.sin(ang)*d,18,H-18);
     } else {
@@ -475,7 +503,7 @@ function spawnEnemy(key,forceTeleport){
   const shooter=(key==='deer')||(key==='boar'&&state.area>=2);
   state.enemies.push({x,y,type:key,hp:t.hp*hpScale,maxhp:t.hp*hpScale,r:t.r,
     speed:t.speed*spScale*rand(.92,1.16),wob:rand(0,6.28),flash:0,slowT:0,alpha:1,returning:false,returnT:0,rvx:0,rvy:0,
-    shooter,shootCd:rand(1.8,3.4),appear,diveCd:rand(2.5,5.5),dive:0});
+    shooter,shootCd:rand(1.8,3.4),appear,diveCd:rand(2.5,5.5),dive:0,targetField:attackField});
 }
 
 function fire(){
@@ -500,7 +528,7 @@ function returnEnemy(e){
 function gaiaWave(){
   const f=state.field;f.glow=1;state.gwaves.push({x:f.x,y:f.y,r:f.r,maxR:Math.hypot(W,H),life:0.7,max:0.7});
   floatText(f.x,f.y-f.r-12,'お山へお帰り〜','#9dffce',15);
-  for(const e of state.enemies){if(e.returning)continue;const a=Math.atan2(e.y-f.y,e.x-f.x);
+  for(const e of state.enemies){if(e.returning||e.birdSquad||e.scriptedUpperStrike)continue;const a=Math.atan2(e.y-f.y,e.x-f.x);
     e.x+=Math.cos(a)*80;e.y+=Math.sin(a)*80;e.slowT=2.4;e.hp-=1;if(e.hp<=0)returnEnemy(e);}
   shake(5);
 }
@@ -519,27 +547,30 @@ function refreshShop(){if(!state)return;const cap=state.options.length>=3;
   document.getElementById('shopCount').textContent=state.options.length;
   document.getElementById('shopCost').textContent=cap?'MAX':state.droneCost;
   document.getElementById('buyDroneBtn').style.opacity=cap?0.5:1;
-  const scap=state.shieldStock>=SHIELD_MAX;
+  const shieldCap=shieldCapacity(),scap=state.shieldStock>=shieldCap;
   document.getElementById('shopShield').textContent=state.shieldStock;
+  document.getElementById('shopShieldMax').textContent=shieldCap;
   document.getElementById('buyShieldBtn').style.opacity=scap?0.5:1;}
-// シールド購入（ストック+1、上限SHIELD_MAX）
+// シールド購入（AREA 5向けショップでは上限5、それ以外は3）
 function buyShield(){if(!state)return;const msg=document.getElementById('shopMsg');
-  if(state.shieldStock>=SHIELD_MAX){msg.textContent='シールドは最大の'+SHIELD_MAX+'個です / SHIELD STOCK FULL';return;}
+  const shieldCap=shieldCapacity();if(state.shieldStock>=shieldCap){msg.textContent='シールドは最大の'+shieldCap+'個です / SHIELD STOCK FULL';return;}
   if(state.score<SHIELD_COST){msg.textContent='コインが足りません（必要 '+SHIELD_COST+'） / NOT ENOUGH COINS';return;}
   state.score-=SHIELD_COST;state.shieldStock++;SND.sfx.buy();
-  msg.textContent='シールド補充！ 所持 '+state.shieldStock+' 個 / SHIELD ADDED — PRESS 1 TO USE';
+  msg.textContent='シールド補充！ 所持 '+state.shieldStock+' 個（危険時に自動展開） / AUTO SHIELD ADDED';
   refreshShop();updateShieldHUD();}
 // シールド発動：ストック-1で圃場がSHIELD_DURATION_SEC秒無敵。0なら不発
-// auto=true は自動発動（HP閾値割れ）。手動（1キー）も従来通り呼べる
+// auto=true は危険度に応じた自動発動。
 function activateShield(auto){
   if(!state||!state.running||state.phase==='ending')return;
   if(state.shieldT>0)return; // 発動中の重ねがけは消費しない
   if(state.shieldStock<=0){if(!auto){SND.sfx.eshoot();floatText(state.player.x,state.player.y-26,'シールドなし / NO SHIELD','#5a7d6b',13);}return;}
-  state.shieldStock--;state.shieldT=SHIELD_DURATION_SEC;SND.sfx.buy();shake(3);
+  state.shieldStock--;state.shieldT=shieldDurationForArea(state.area);SND.sfx.buy();shake(3);
+  // 最終AREAでは敵を一時的に減速し、シールド終了直後の一斉突入を防ぐ。
+  if(state.area===5)for(const e of state.enemies){if(!e.returning)e.slowT=Math.max(e.slowT||0,3.0);}
   for(const f of aliveFields()){f.glow=1.2;floatText(f.x,f.y-f.r-12,auto?'自動シールド / AUTO SHIELD！':'シールド展開 / SHIELD ON！','#36e0ff',14);}
   updateShieldHUD();}
 function updateShieldHUD(){if(!state)return;const el=document.getElementById('shieldHud');
-  if(el)el.textContent='シールド / SHIELD '+'◆'.repeat(state.shieldStock)+'◇'.repeat(Math.max(0,SHIELD_MAX-state.shieldStock))+(state.shieldT>0?' 展開中 / ACTIVE':'');}
+  const shieldCap=shieldCapacity();if(el)el.textContent='シールド / SHIELD '+'◆'.repeat(state.shieldStock)+'◇'.repeat(Math.max(0,shieldCap-state.shieldStock))+(state.shieldT>0?' 展開中 / ACTIVE':'');}
 
 // ---- リザルト（返した数・農園ライフ%・自己ベスト）----
 // HUDの圃場INTEGRITYと同じ計算：生存圃場の合計hp ÷ 合計maxhp（%）
@@ -581,13 +612,13 @@ function shieldBlocks(b,bx,by){
 }
 function spawnBoss(){
   const n=state.area>=5?3:(state.area>=4?2:1);
-  const hp=(720+(state.area-1)*195)*state.D.bosshp*(n===1?1:n===2?0.66:0.5);
+  const hp=(720+(state.area-1)*195)*state.D.bosshp*areaTune(state.area).bossDurabilityMul*(n===1?1:n===2?0.66:0.5);
   state.bosses=[];
   for(let k=0;k<n;k++){const offx=n===1?0:(k-(n-1)/2)*150;
     state.bosses.push({x:W/2+offx,y:-70-k*34,r:n===1?48:40,hp:hp,maxhp:hp,st:'enter',timer:0.9+k*0.55,flash:0,
       chargeVX:0,chargeVY:0,aimX:0,aimY:0,summonCd:4+k,shootCd:1.8+k*0.7,burstCd:6+k,ringCd:rand(2.5,4.5),strafe:Math.random()<0.5?-1:1,wob:k*1.3,facing:Math.PI/2,weakShown:false,
       // ★部分シールド：扇形の盾がゆっくり回転。守られた角度からの弾は25%しか通らない
-      shieldN:shieldCount(state.area),shieldRot:rand(0,6.283),shieldSpin:(0.35+(state.area-1)*0.11)*(Math.random()<0.5?-1:1),shieldArc:SHIELD_ARC/shieldCount(state.area)*(shieldCount(state.area)===1?1:1.25),shieldHit:0});}
+      shieldN:shieldCount(state.area),shieldRot:rand(0,6.283),shieldSpin:(0.35+(state.area-1)*0.11)*(Math.random()<0.5?-1:1),shieldArc:SHIELD_ARC/shieldCount(state.area)*(shieldCount(state.area)===1?1:1.25),shieldHit:0,colorPhase:0});}
   document.getElementById('bossbar-wrap').style.display='block';
   document.getElementById('bossbar-label').textContent=n>1?('\u25b2 \u5c71\u306e\u30cc\u30b7 \u00d7'+n+' \u25b2'):'\u25b2 \u5c71\u306e\u30cc\u30b7 \u25b2';
   burst(W/2,H*0.32,'#ff7a2f',24);SND.sfx.boss();SND.bgmBoss(true);shake(12);
@@ -603,8 +634,27 @@ function bossBurst(b){
   const bn=state.bosses.length>1?12:16;for(let i=0;i<bn;i++){const ang=i/bn*6.283;state.bossShots.push({x:b.x,y:b.y,vx:Math.cos(ang)*205,vy:Math.sin(ang)*205,r:8,life:4});}
   floatText(b.x,b.y-b.r-12,'咆哮 / ROAR！','#ff4d4d',16);SND.sfx.roar();shake(8);
 }
+function damagePlayer(fromX,fromY,label){
+  const s=state,p=s.player;if(!s.running||p.invuln>0||s.surge>0)return false;
+  s.lives--;p.invuln=1.4;p.stagger=0.9;p.cgrace=0.9;p.flash=.3;
+  const a=Math.atan2(p.y-fromY,p.x-fromX);p.kx=Math.cos(a)*330;p.ky=Math.sin(a)*330;
+  shake(11);SND.sfx.stagger();burst(p.x,p.y,'#ff4d4d',18);floatText(p.x,p.y-26,(label||'被弾 / HIT！')+' 残り / LIFE '+Math.max(0,s.lives),'#ff4d4d',16);
+  updateLives();hitFlash();if(s.lives<=0){s.deathCause='drone';gameOver();}return true;
+}
 function bossUpdate(dt){if(!state.bosses.length)return;for(const b of state.bosses)bossStep(b,dt);updateBossBar();}
-function updateBossBar(){let h=0,m=0;for(const b of state.bosses){h+=Math.max(0,b.hp);m+=b.maxhp;}document.getElementById('bossbar-fill').style.width=Math.max(0,h/Math.max(1,m)*100)+'%';}
+function bossColorPhase(b){const r=clamp(b.hp/Math.max(1,b.maxhp),0,1);return r>0.66?0:(r>0.33?1:2);}
+function bossPalette(b){const p=bossColorPhase(b);return p===0?{body:'#ff3b3b',glow:'#ff2b2b',eye:'#ffe000'}:(p===1?{body:'#ff8a2f',glow:'#ff9b3d',eye:'#fff08a'}:{body:'#ffe27a',glow:'#fff3c0',eye:'#ffffff'});}
+function updateBossBar(){let h=0,m=0;for(const b of state.bosses){h+=Math.max(0,b.hp);m+=b.maxhp;}const ratio=Math.max(0,h/Math.max(1,m)),phase=ratio>0.66?0:(ratio>0.33?1:2);
+  const fill=document.getElementById('bossbar-fill'),label=document.getElementById('bossbar-label');fill.style.width=ratio*100+'%';
+  fill.style.background=phase===0?'linear-gradient(90deg,#d71920,#ff4d4d)':(phase===1?'linear-gradient(90deg,#ff6a1a,#ffb02e)':'linear-gradient(90deg,#ffd23a,#fff3c0)');
+  fill.style.boxShadow='0 0 14px '+(phase===0?'rgba(255,77,77,.8)':(phase===1?'rgba(255,155,61,.9)':'rgba(255,243,192,.95)'));
+  const status=phase===0?'赤の猛威 / RAGE':(phase===1?'橙の亀裂 / CRACKED':'金色の終焉 / NEAR RETURN');label.textContent='▲ 山のヌシ'+(state.bosses.length>1?' ×'+state.bosses.length:'')+' ▲ '+status;}
+function prepareBossArena(){
+  const active=state.enemies.filter(e=>!e.returning);
+  for(const e of active){e.returning=true;e.returnT=0.6;e.rvx=rand(-45,45);e.rvy=-280;e.flash=0;}
+  state.bossShots.length=0;
+  floatText(W/2,H*0.18,'ヌシとの一騎打ち / BOSS DUEL','#ffe27a',15);
+}
 function bossStep(b,dt){const f=nearestField(b.x,b.y);
   if(b.shieldN){b.shieldRot+=b.shieldSpin*dt;if(b.shieldHit>0)b.shieldHit-=dt;}
   if(b.flash>0)b.flash-=dt;b.wob+=dt*3;const lowHp=b.hp<b.maxhp*0.5;
@@ -623,10 +673,7 @@ function bossStep(b,dt){const f=nearestField(b.x,b.y);
     if(b.x<b.r||b.x>W-b.r){b.chargeVX*=-1;shake(4);}if(b.y<b.r||b.y>H-b.r){b.chargeVY*=-1;shake(4);}
     b.x=clamp(b.x,b.r,W-b.r);b.y=clamp(b.y,b.r,H-b.r);if(b.timer<=0){b.st='recover';b.timer=lowHp?1.4:1.9;b.weakShown=false;}}
   else if(b.st==='recover'){if(!b.weakShown){b.weakShown=true;floatText(b.x,b.y-b.r-14,'弱点 / WEAK POINT！','#ffe27a',15);}b.timer-=dt;if(b.timer<=0){b.st='idle';b.timer=rand(0.55,0.9);}}
-  // summon + ranged attack (only the boss can hit the player)
-  b.summonCd-=dt;
-  if(b.summonCd<=0 && b.st!=='enter'){b.summonCd=(lowHp?3.4:5.2)/state.D.aggro*state.bosses.length;const n=Math.max(1,Math.round(((lowHp?3:2)+Math.floor((state.area-1)/2))/state.bosses.length));
-    for(let i=0;i<n;i++)spawnEnemy(Math.random()>0.5?'crow':'deer');floatText(b.x,b.y-b.r-10,'仲間を呼んだ / REINFORCEMENTS！','#ff9b3d',13);}
+  // ヌシ戦は一騎打ち。通常敵の召喚は行わない。
   b.shootCd-=dt;
   if(b.shootCd<=0 && (b.st==='idle'||b.st==='recover'||b.st==='telegraph'))bossShoot(b,lowHp);
   if(lowHp && b.st!=='enter'){b.burstCd-=dt;if(b.burstCd<=0){b.burstCd=4.2/state.D.aggro;bossBurst(b);}}
@@ -634,12 +681,10 @@ function bossStep(b,dt){const f=nearestField(b.x,b.y);
     const rn=Math.max(8,Math.round((9+(state.area-1)*2)/(state.bosses.length>1?1.6:1))),rsp=195+(state.area-1)*14;
     for(let i=0;i<rn;i++){const a=i/rn*6.283+b.wob;state.bossShots.push({x:b.x,y:b.y,vx:Math.cos(a)*rsp,vy:Math.sin(a)*rsp,r:7,life:4});}}
   const pp=state.player;
-  if(pp.stagger<=0 && pp.cgrace<=0 && state.surge<=0 && (b.st==='charge'||b.st==='telegraph') && dist(b.x,b.y,pp.x,pp.y)<b.r+pp.r){
-    pp.stagger=1.0;pp.cgrace=1.8;pp.invuln=Math.max(pp.invuln,0.6);pp.flash=.3;
-    const a3=Math.atan2(pp.y-b.y,pp.x-b.x);pp.kx=Math.cos(a3)*360;pp.ky=Math.sin(a3)*360;
-    shake(9);SND.sfx.stagger();floatText(pp.x,pp.y-26,'スタン / STUN！','#ff7a2f',15);}
+  if((b.st==='charge'||b.st==='telegraph') && dist(b.x,b.y,pp.x,pp.y)<b.r+pp.r)damagePlayer(b.x,b.y,'ヌシ激突 / BOSS HIT！');
 }
 function bossHit(b,dmg,bx,by){
+  const oldPhase=b.colorPhase===undefined?bossColorPhase(b):b.colorPhase;
   let mul=(b.st==='recover')?2.6:((b.st==='charge'||b.st==='telegraph')?0.30:0.5);
   const blocked=shieldBlocks(b,bx,by);
   if(blocked){ // 盾に弾かれる：25%だけ通る＋青い火花
@@ -648,12 +693,14 @@ function bossHit(b,dmg,bx,by){
     if(Math.random()<0.08)floatText(bx,by-10,'弾かれた / DEFLECTED','#8fdcff',12);
   }
   b.hp-=dmg*mul;const weak=mul>1;if(weak)SND.sfx.weak();b.flash=Math.max(b.flash,weak?0.2:0.08);
+  const newPhase=bossColorPhase(b);if(newPhase>oldPhase&&b.hp>0){b.colorPhase=newPhase;const pc=bossPalette(b);burst(b.x,b.y,pc.body,22);shake(8);
+    floatText(b.x,b.y-b.r-24,newPhase===1?'ヌシの色が変わった / COLOR SHIFT':'撃破間近 / NEAR RETURN',pc.body,16);}
   if(!blocked){const n=weak?7:2;for(let i=0;i<n;i++)state.parts.push(part(bx,by,weak?(i%2?'#ffe27a':'#fff3c0'):'#fff',rand(30,weak?150:80),.14,weak?2.6:1.6));}
   if(weak&&Math.random()<0.12)floatText(bx,by-10,'大ダメージ / CRITICAL！','#ffe27a',14);
   if(b.hp<=0)killBoss(b);}
 function killBoss(b){
   const idx=state.bosses.indexOf(b);if(idx>=0)state.bosses.splice(idx,1);
-  for(let i=0;i<5;i++)setTimeout(()=>{if(state)burst(b.x+rand(-30,30),b.y+rand(-30,30),'#bfffe0',18);},i*90);
+  for(let i=0;i<5;i++)setTimeout(()=>{if(state&&state.phase!=='clearing'&&state.phase!=='ending')burst(b.x+rand(-30,30),b.y+rand(-30,30),'#bfffe0',18);},i*90);
   burst(b.x,b.y,'#ffcf3a',30);
   const fx=(state.field?state.field.x:W/2);
   for(let i=0;i<28;i++){const x=fx+rand(-90,90);state.coins.push({x,y:-rand(20,260),vx:rand(-30,30),vy:rand(20,80),r:7,spin:rand(0,6.28),life:11});}
@@ -661,14 +708,17 @@ function killBoss(b){
   if(state.bosses.length===0)bossCleared();else floatText(b.x,b.y-60,'残り / REMAINING '+state.bosses.length+' 体','#ffe27a',16);
 }
 function bossCleared(){
-  state.bossShots.length=0;SND.bgmBoss(false);document.getElementById('bossbar-wrap').style.display='none';
+  state.enemies.length=0;state.bullets.length=0;state.bossShots.length=0;state.coins.length=0;state.parts.length=0;state.floats.length=0;state.gwaves.length=0;
+  // 撃破後の静かな祝福演出。敵や残像は消し、画面内にコインだけを散りばめる。
+  for(let i=0;i<20;i++)state.coins.push({x:rand(32,W-32),y:rand(H*0.16,H*0.84),vx:0,vy:0,r:7,spin:rand(0,6.28),life:10});
+  state.shake=0;shakeEl.style.transform='translate(0,0)';SND.bgmBoss(false);document.getElementById('bossbar-wrap').style.display='none';
   bossTint.style.background='radial-gradient(ellipse at center,rgba(255,40,40,0),rgba(120,0,0,0))';
   state.phase='clearing';state.banner=0;
   if(state.area>=FINAL_AREA){banner('世界が、よみがえる','ありがとう / MISSION COMPLETE','#9dffce',2.4);setTimeout(startEnding,2400);}
   else{banner('山のヌシ お山へ帰った','交信あり / AREA CLEAR','#9dffce',2.6);setTimeout(stageClear,2600);}
 }
 function stageClear(){
-  if(!state||!state.running)return;state.running=false;SND.sfx.clear();document.getElementById('fireBtn').classList.add('hidden');
+  if(!state||!state.running)return;state.running=false;state.coins.length=0;SND.sfx.clear();document.getElementById('fireBtn').classList.add('hidden');
   document.getElementById('clearMsg').textContent=transmissionFor(state.area);
   document.getElementById('nextArea').textContent=state.area+1;
   document.getElementById('shopMsg').textContent='';refreshShop();
@@ -706,23 +756,50 @@ function layoutFields(a){
   const cx=W/2,cy=H*0.52,R=Math.min(W,H)*0.24;const pos=[];
   if(n===1)pos.push({x:cx,y:cy});
   else for(let i=0;i<n;i++){const ang=-Math.PI/2+i*(6.283/n);pos.push({x:cx+Math.cos(ang)*R,y:cy+Math.sin(ang)*R});}
-  state.fields=pos.map(q=>({x:q.x,y:q.y,r:n===1?54:40,hp:110,maxhp:110,flash:0,glow:1.3,dead:false}));
+  const fieldHp=Math.round(110*areaTune(a).fieldHpMul);
+  state.fields=pos.map((q,i)=>({id:i,x:q.x,y:q.y,r:n===1?54:40,hp:fieldHp,maxhp:fieldHp,flash:0,glow:1.3,dead:false}));
   state.field=state.fields[0];
+  state.fieldTargetSeq=0;state.lowerFieldHits=0;state.upperPressurePending=false;
 }
 function aliveFields(){return state.fields.filter(f=>!f.dead);}
 function nearestField(x,y){const af=aliveFields();if(!af.length)return state.fields[0];let b=af[0],bd=1e18;for(const f of af){const d=(f.x-x)*(f.x-x)+(f.y-y)*(f.y-y);if(d<bd){bd=d;b=f;}}return b;}
+// AREA 2-3は下側を主対象にしつつ、4体ごとに1体を上側へ確実に振り分ける。
+// 位置で毎フレーム選び直さず担当を保持するため、上側の被害が0にならない。
+function pickAttackField(){
+  const af=aliveFields();if(!af.length)return state.fields[0];
+  if((state.area===2||state.area===3)&&af.length>=2){
+    const ordered=af.slice().sort((a,b)=>a.y-b.y);const upper=ordered[0],lower=ordered[ordered.length-1];
+    if(state.upperPressurePending)return upper;
+    const seq=state.fieldTargetSeq||0;state.fieldTargetSeq=seq+1;
+    return seq%4===3?upper:lower;
+  }
+  return af[Math.floor(Math.random()*af.length)];
+}
+function attackFieldForEnemy(e){
+  if(e.targetField&&!e.targetField.dead)return e.targetField;
+  e.targetField=pickAttackField();return e.targetField;
+}
 function damageField(f,amt){if(f.dead)return;
   if(state&&state.shieldT>0){f.glow=Math.max(f.glow,0.8);return;} // シールド中は無効（点灯のみ）
+  if(state.area===2||state.area===3){
+    const ordered=state.fields.slice().sort((a,b)=>a.y-b.y),upper=ordered[0],lower=ordered[ordered.length-1];
+    if(f===lower){state.lowerFieldHits=(state.lowerFieldHits||0)+1;
+      if(state.lowerFieldHits>=3&&!upper.dead&&!state.upperPressurePending){state.lowerFieldHits=0;state.upperPressurePending=true;spawnUpperCounterRaider(upper);
+        const candidates=state.enemies.filter(e=>!e.returning);if(candidates.length){candidates.sort((a,b)=>dist(a.x,a.y,upper.x,upper.y)-dist(b.x,b.y,upper.x,upper.y));candidates[0].targetField=upper;}
+        floatText(upper.x,upper.y-upper.r-10,'上側に接近 / UPPER FARM ALERT','#ff9b3d',13);}}
+    else if(f===upper){state.upperPressurePending=false;state.lowerFieldHits=0;}
+  }
   f.hp-=amt;f.flash=.3;if(f.hp<=0){f.hp=0;f.dead=true;burst(f.x,f.y,'#ff4d4d',26);floatText(f.x,f.y,'圃場 陥落 / FIELD LOST！','#ff6b6b',18);shake(14);hitFlash('#ff7a2f',0.5);SND.sfx.stagger();}}
 
 // ---- stage flow ----
 function seedStartCoins(){for(let i=0;i<11;i++){const a=rand(0,6.283),d=rand(60,150),cx=W/2+Math.cos(a)*d,cy=H*0.52+Math.sin(a)*d;state.coins.push({x:clamp(cx,20,W-20),y:clamp(cy,20,H-20),vx:0,vy:0,r:7,spin:rand(0,6.28),life:16});}floatText(W/2,H*0.52-70,'コインを拾って強くなろう / COLLECT COINS！','#ffe45c',13);}
 function startArea(){
   state.D=areaDiff(state.area);state.wavesPerArea=state.D.waves;
+  state.bossWarnMax=state.area===4?2.0:3.0;
   state.phase='wave';state.waveIdx=1;state.bosses=[];state.enemies.length=0;state.bullets.length=0;state.bossShots.length=0;
   layoutFields(state.area);
   if(state.area===1)seedStartCoins(); // ステージ1だけ、最初にコインを置く
-  state.waveTime=0;state.spawnAcc=0;state.raidAcc=0;
+  state.waveTime=0;state.spawnAcc=0;state.raidAcc=0;state.stage1BirdRaidMask=0;state.stage5ShieldWaveUses=[0,0,0,0,0];
   document.getElementById('area').textContent=state.area;
   document.getElementById('areamax').textContent=FINAL_AREA;
   document.getElementById('wave').textContent='1/'+state.wavesPerArea;
@@ -733,6 +810,8 @@ function nextWaveOrBoss(){
     document.getElementById('wave').textContent=state.waveIdx+'/'+state.wavesPerArea;
     banner('WAVE '+state.waveIdx,'','#3dffa0',1.4);}
   else{state.phase='bosswarn';state.bossWarn=state.bossWarnMax;state.warnStep=0;state.spawnAcc=0;SND.sfx.warn();
+    // 最終AREAは防衛ウェーブを越えた時点で通常敵を撤退させ、残った農園をヌシ戦へ引き継ぐ。
+    if(state.area===5)for(const e of state.enemies){if(!e.returning){e.returning=true;e.returnT=0.6;e.rvx=rand(-45,45);e.rvy=-280;e.flash=0;}}
     document.getElementById('wave').textContent='BOSS';}
 }
 
@@ -743,14 +822,35 @@ function update(dt){
   const s=state;
   if(s.phase==='ending'){endingUpdate(dt);return;}
   s.t+=dt;if(s.banner>0)s.banner-=dt;if(s.surge>0)s.surge-=dt;
+  // ヌシ撃破後は敵・弾を停止したまま、ドローンの移動だけを許可する。
+  if(s.phase==='clearing'){
+    const p=s.player;let kx=0,ky=0;
+    if(keys['a']||keys['arrowleft'])kx-=1;if(keys['d']||keys['arrowright'])kx+=1;
+    if(keys['w']||keys['arrowup'])ky-=1;if(keys['s']||keys['arrowdown'])ky+=1;
+    if(kx||ky){const l=Math.hypot(kx,ky),sp=330;p.x+=kx/l*sp*dt;p.y+=ky/l*sp*dt;p.rot+=(Math.atan2(ky,kx)-p.rot)*0.25;}
+    else if(target.active){const dx=target.x-p.x,dy=target.y-p.y;
+      if(IS_TOUCH){p.rot+=(Math.atan2(dy,dx)-p.rot)*0.3;p.x=target.x;p.y=target.y;}
+      else{p.x+=dx*Math.min(1,dt*14);p.y+=dy*Math.min(1,dt*14);p.rot+=(Math.atan2(dy,dx)-p.rot)*0.3;}}
+    p.x+=p.kx*dt;p.y+=p.ky*dt;p.kx*=0.86;p.ky*=0.86;
+    p.x=clamp(p.x,p.r,W-p.r);p.y=clamp(p.y,p.r,H-p.r);p.bob+=dt*8;
+    for(const c of s.coins)c.spin+=dt*7;
+    return;
+  }
   if(s.shieldT>0){s.shieldT-=dt;if(s.shieldT<=0){s.shieldT=0;updateShieldHUD();}}
   // 自動発動：無敵中でない・ストックあり・圃場HP合計が閾値未満（無敵解除後もHPが低ければ再発動）
-  else if(s.shieldStock>0){let h=0,m=0;for(const f of s.fields){h+=Math.max(0,f.hp);m+=f.maxhp;}
-    if(m>0&&h/m<SHIELD_AUTO_THRESHOLD)activateShield(true);}
+  else if(s.shieldStock>0){let h=0,m=0,weakest=1;for(const f of s.fields){h+=Math.max(0,f.hp);m+=f.maxhp;if(!f.dead)weakest=Math.min(weakest,f.hp/Math.max(1,f.maxhp));}
+    if(s.area===5){
+      // 最終AREAはWAVE 1で温存し、WAVE 2に1個、WAVE 3・4に各2個まで配分する。
+      const waveLimit=s.waveIdx===2?1:(s.waveIdx>=3?2:0),used=s.stage5ShieldWaveUses[s.waveIdx]||0;
+      const eligible=s.phase==='wave'&&waveLimit>0&&used<waveLimit;
+      if(m>0&&eligible&&(h/m<shieldAutoThresholdForArea(s.area)||weakest<0.55)){s.stage5ShieldWaveUses[s.waveIdx]=used+1;activateShield(true);}
+    } else if(m>0&&h/m<shieldAutoThresholdForArea(s.area))activateShield(true);}
   if(s.comboTimer>0){s.comboTimer-=dt;if(s.comboTimer<=0){s.combo=0;document.getElementById('combo').textContent='';}}
 
   if(s.phase==='wave'){
     s.waveTime+=dt;const dur=13;const ramp=clamp(s.waveTime/dur,0,1);
+    if(s.area===1&&s.waveIdx===1&&!(s.stage1BirdRaidMask&1)&&s.waveTime>=1.4){s.stage1BirdRaidMask|=1;spawnBirdSquad(5,false);}
+    if(s.area===1&&s.waveIdx===2&&!(s.stage1BirdRaidMask&2)&&s.waveTime>=4.0){s.stage1BirdRaidMask|=2;spawnBirdSquad(7,true);}
     let targetCon=spawnTarget(s.area,s.waveIdx,ramp,s.fields.length,s.D.con);
     const alive=s.enemies.filter(e=>!e.returning).length;
     // ★画面で実際に戦っている敵だけ数える＝「数秒出てこない」対策
@@ -762,12 +862,12 @@ function update(dt){
     s.raidAcc=(s.raidAcc||0)+dt;
     let raidEvery;
     if(s.area===1){
-      // A1: 最初の6秒だけ猶予（コインを拾う時間）→その後は農園をちゃんと狙う。控えめだがゼロにしない
-      raidEvery=(s.waveIdx===1 && s.waveTime<6)?999:(4.2-ramp*1.4);
+      // A1: 4.5秒の準備後、少しだけ短い間隔で農園を襲撃する。
+      raidEvery=(s.waveIdx===1 && s.waveTime<4.5)?999:(3.7-ramp*1.1);
     } else {
-      raidEvery=Math.max(1.2,2.8-(s.area-2)*0.4-ramp*1.3); // A2以降: AREA4基準の密度
+      raidEvery=Math.max(1.2,2.8-(s.area-2)*0.4-ramp*1.3)*areaTune(s.area).raidIntervalMul; // A4は防衛判断の間隔を確保
     }
-    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();if(s.area>=2&&Math.random()<0.45)spawnRaider();}
+    if(s.raidAcc>=raidEvery){s.raidAcc=0;spawnRaider();if(s.area>=2&&Math.random()<areaTune(s.area).raidExtraChance)spawnRaider();}
     if(active<floorActive*0.5){
       if(s.spawnAcc>=0.06){s.spawnAcc=0;spawnEnemy(pickEnemy(),true);spawnEnemy(pickEnemy(),true);}
     } else if(active<floorActive && alive<targetCon+10){
@@ -784,13 +884,12 @@ function update(dt){
     if(Math.random()<0.5)s.parts.push({x:rand(0,W),y:H+10,vx:rand(-10,10),vy:rand(-50,-110),col:'#6b5535',life:rand(.6,1.2),max:1.2,r:rand(1,2.5)});
     if(prog> s.warnStep*0.22){s.warnStep++;shake(3+prog*4);}
     // ヌシの先触れ：密度のピーク。最終ウェーブ終盤(ramp=1)と同等を維持し、ボス登場直前を最高潮にする
-    {const alive=s.enemies.filter(e=>!e.returning).length;const warnTarget=spawnTarget(s.area,s.wavesPerArea,1,s.fields.length,s.D.con);const floor=Math.max(3,Math.floor(warnTarget*0.4));s.spawnAcc+=dt;
+    if(s.area<5){const alive=s.enemies.filter(e=>!e.returning).length;const warnTarget=Math.max(3,Math.round(spawnTarget(s.area,s.wavesPerArea,1,s.fields.length,s.D.con)*areaTune(s.area).warnSpawnMul));const floor=Math.max(3,Math.floor(warnTarget*0.4));s.spawnAcc+=dt;
       if(alive<floor&&s.spawnAcc>=0.10){s.spawnAcc=0;spawnEnemy(Math.random()>0.5?'crow':'deer',true);}
       else if(alive<warnTarget&&s.spawnAcc>0.16){s.spawnAcc=0;spawnEnemy(Math.random()>0.5?'crow':'deer');}}
-    if(s.bossWarn<=0){spawnBoss();s.phase='boss';banner('山のヌシ','','#ff4d4d',1.4);}
+    if(s.bossWarn<=0){prepareBossArena();spawnBoss();s.phase='boss';banner('山のヌシ','','#ff4d4d',1.4);}
   } else if(s.phase==='boss'){bossUpdate(dt);
-    // ボスフェーズ独立スポーン：AREA_TUNE倍率つき（A1:約5体 〜 A5:約11体）
-    {const alive=s.enemies.filter(e=>!e.returning).length;const bossTarget=Math.min(14,Math.round((3+s.area)*areaTune(s.area).spawnMul));s.spawnAcc+=dt;if(alive<bossTarget&&s.spawnAcc>=0.9){s.spawnAcc=0;spawnEnemy(Math.random()>0.5?'crow':'deer');}}
+    // ヌシ戦中は通常敵を出現させない。
   }
 
   // player move + knockback + stagger
@@ -822,17 +921,20 @@ function update(dt){
       if(dist(b.x,b.y,e.x,e.y)<e.r+b.r){e.hp-=(b.dmg||s.dmg);e.flash=.12;s.parts.push(part(b.x,b.y,'#fff',rand(20,60),.12,1.5));
         s.bullets.splice(i,1);hit=true;if(e.hp<=0)returnEnemy(e);break;}}
     if(hit)continue;
-    {let hb=null;for(const bs of s.bosses){if(dist(b.x,b.y,bs.x,bs.y)<bs.r+b.r){hb=bs;break;}}if(hb){bossHit(hb,(b.dmg||s.dmg),b.x,b.y);s.bullets.splice(i,1);}}
+    {let hb=null;for(const bs of s.bosses){if(dist(b.x,b.y,bs.x,bs.y)<bs.r+b.r){hb=bs;break;}}if(hb){
+      bossHit(hb,(b.dmg||s.dmg),b.x,b.y);
+      // 最後のヌシを倒すと bossCleared() が弾を全消去するため、
+      // 消去済み配列をこのループが読み続けないよう即座に抜ける。
+      if(s.phase==='clearing')break;
+      s.bullets.splice(i,1);
+    }}
   }
 
   // boss projectiles -> can stagger the drone
   for(let i=s.bossShots.length-1;i>=0;i--){const sh=s.bossShots[i];const ss=s.surge>0?0.3:1;sh.x+=sh.vx*dt*ss;sh.y+=sh.vy*dt*ss;sh.life-=dt;
     s.parts.push(part(sh.x,sh.y,sh.col||'#ff7a2f',rand(10,30),.1,1.5));
     if(sh.life<=0||sh.x<-30||sh.x>W+30||sh.y<-30||sh.y>H+30){s.bossShots.splice(i,1);continue;}
-    if(p.invuln<=0 && s.surge<=0 && dist(sh.x,sh.y,p.x,p.y)<p.r+sh.r){
-      s.lives--;p.invuln=1.4;p.stagger=0.9;p.cgrace=0.9;p.flash=.3;const a=Math.atan2(p.y-sh.y,p.x-sh.x);p.kx=Math.cos(a)*330;p.ky=Math.sin(a)*330;
-      shake(11);SND.sfx.stagger();burst(p.x,p.y,'#ff4d4d',18);floatText(p.x,p.y-26,'被弾 / HIT！ 残り / LIFE '+Math.max(0,s.lives),'#ff4d4d',16);
-      updateLives();hitFlash();s.bossShots.splice(i,1);if(s.lives<=0){state.deathCause='drone';gameOver();return;}}
+    if(dist(sh.x,sh.y,p.x,p.y)<p.r+sh.r && damagePlayer(sh.x,sh.y,'被弾 / HIT！')){s.bossShots.splice(i,1);if(!s.running)return;}
   }
 
   for(const f of s.fields){if(f.flash>0)f.flash-=dt;if(f.glow>0)f.glow-=dt*1.6;}
@@ -841,8 +943,8 @@ function update(dt){
     if(e.appear>0){e.appear-=dt;if(e.flash>0)e.flash-=dt;continue;}
     if(e.slowT>0)e.slowT-=dt;const sm=(e.slowT>0?0.42:1)*(s.surge>0?0.3:1);
     if(e.dive>0)e.dive-=dt;else{e.diveCd-=dt;if(e.diveCd<=0){e.diveCd=rand(s.area>=2?3.2:4.5,s.area>=2?6:7.5);e.dive=0.52;e.flash=.12;}}
-    const dv=e.dive>0?2.6:1;
-    const tf=nearestField(e.x,e.y);const ang=Math.atan2(tf.y-e.y,tf.x-e.x);e.wob+=dt*4;const wob=t.tank?0:Math.sin(e.wob)*(e.dive>0?0.1:0.5);
+    const scriptedStrike=e.scriptedFarmStrike||e.scriptedUpperStrike,dv=scriptedStrike?3.0:(e.dive>0?2.6:1);
+    const tf=attackFieldForEnemy(e);const ang=Math.atan2(tf.y-e.y,tf.x-e.x);e.wob+=dt*4;const wob=(scriptedStrike||t.tank)?0:Math.sin(e.wob)*(e.dive>0?0.1:0.5);
     e.x+=Math.cos(ang+wob)*e.speed*sm*dv*dt;e.y+=Math.sin(ang+wob)*e.speed*sm*dv*dt;if(e.flash>0)e.flash-=dt;
     if(e.shooter && e.x>6&&e.x<W-6&&e.y>6&&e.y<H-6 && s.surge<=0){e.shootCd-=dt;
       if(e.shootCd<=0){
@@ -866,7 +968,7 @@ function update(dt){
       p.stagger=1.0;p.cgrace=1.8;p.invuln=Math.max(p.invuln,0.6);p.flash=.3;
       const a2=Math.atan2(p.y-e.y,p.x-e.x);p.kx=Math.cos(a2)*300;p.ky=Math.sin(a2)*300;e.x-=Math.cos(a2)*22;e.y-=Math.sin(a2)*22;
       shake(8);SND.sfx.stagger();floatText(p.x,p.y-26,'スタン / STUN！','#ff7a2f',15);}
-    if(!tf.dead && dist(e.x,e.y,tf.x,tf.y)<tf.r+e.r){const fieldDmg=Math.max(1,Math.round(t.dmg*areaTune(s.area).fieldDamageMul));
+    if(!tf.dead && dist(e.x,e.y,tf.x,tf.y)<tf.r+e.r){const bossFarmMul=s.phase==='boss'?areaTune(s.area).bossFieldDamageMul:1;const fieldDmg=Math.max(1,Math.round(t.dmg*areaTune(s.area).fieldDamageMul*bossFarmMul));
       damageField(tf,fieldDmg);shake(t.tank?9:4);burst(e.x,e.y,'#ff4d4d',10);
       dropCoins(e.x,e.y,t.tank?2:1);floatText(tf.x,tf.y-tf.r-6,'-'+fieldDmg,'#ff6b6b',14);s.enemies.splice(i,1);if(aliveFields().length===0){state.deathCause='fields';gameOver();return;}}}
 
@@ -912,7 +1014,7 @@ function render(){
   ctx.globalAlpha=1;ctx.shadowBlur=0;
 
   for(const f of s.fields){ctx.save();ctx.strokeStyle='rgba(54,224,255,0.12)';ctx.beginPath();ctx.arc(f.x,f.y,f.r+110,0,6.28);ctx.stroke();ctx.restore();drawField(f,s.t);
-    if(s.shieldT>0&&!f.dead){ctx.save();const sa=clamp(s.shieldT/SHIELD_DURATION_SEC,0,1);
+    if(s.shieldT>0&&!f.dead){ctx.save();const sa=clamp(s.shieldT/shieldDurationForArea(s.area),0,1);
       ctx.globalAlpha=0.45+0.35*Math.sin(performance.now()/90);ctx.strokeStyle='#36e0ff';ctx.lineWidth=3;
       ctx.shadowColor='#36e0ff';ctx.shadowBlur=18;ctx.beginPath();ctx.arc(f.x,f.y,f.r+14+(1-sa)*4,0,6.28);ctx.stroke();ctx.restore();}}
   for(const c of s.coins)drawCoin(c);
@@ -1039,14 +1141,15 @@ function drawBoss(b){
   if(b.st==='telegraph'){const blink=Math.sin(performance.now()/60)>0;ctx.save();ctx.rotate(b.facing);
     ctx.strokeStyle=blink?'rgba(255,77,77,0.9)':'rgba(255,77,77,0.3)';ctx.lineWidth=4;ctx.setLineDash([10,8]);
     ctx.beginPath();ctx.moveTo(b.r,0);ctx.lineTo(W,0);ctx.stroke();ctx.restore();}
-  const vuln=b.st==='recover';const blinkW=vuln&&Math.sin(performance.now()/45)>0;
-  const col=b.flash>0?'#fff':(vuln?(blinkW?'#fff3c0':'#ffb877'):'#ff3b3b');
-  ctx.shadowColor=vuln?'#ffd23a':'#ff2b2b';ctx.shadowBlur=vuln?(32+Math.sin(performance.now()/70)*8):18;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,-b.r);
+  const vuln=b.st==='recover',pal=bossPalette(b);const blinkW=vuln&&Math.sin(performance.now()/45)>0;
+  const col=b.flash>0?'#fff':(blinkW?'#fff3c0':pal.body);
+  ctx.shadowColor=vuln?'#ffd23a':pal.glow;ctx.shadowBlur=vuln?(32+Math.sin(performance.now()/70)*8):18;ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(0,-b.r);
   for(let i=1;i<=6;i++){const a=-1.57+i*1.047;ctx.lineTo(Math.cos(a)*b.r,Math.sin(a)*b.r);}ctx.closePath();ctx.fill();
   ctx.strokeStyle='#2a0808';ctx.lineWidth=3;ctx.stroke();
   ctx.strokeStyle='#fff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-14,b.r*0.45);ctx.lineTo(-24,b.r*0.78);ctx.moveTo(14,b.r*0.45);ctx.lineTo(24,b.r*0.78);ctx.stroke();
-  ctx.shadowBlur=10;ctx.shadowColor='#ffff00';ctx.fillStyle=vuln?'#ffe27a':'#ffe000';ctx.beginPath();ctx.arc(-12,-6,4,0,6.28);ctx.arc(12,-6,4,0,6.28);ctx.fill();
+  ctx.shadowBlur=10;ctx.shadowColor=pal.eye;ctx.fillStyle=vuln?'#ffffff':pal.eye;ctx.beginPath();ctx.arc(-12,-6,4,0,6.28);ctx.arc(12,-6,4,0,6.28);ctx.fill();
   if(vuln){ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,210,58,'+(0.45+0.45*Math.sin(performance.now()/80)).toFixed(2)+')';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,b.r+9,0,6.28);ctx.stroke();}
+  if(bossColorPhase(b)===2){ctx.shadowBlur=14;ctx.shadowColor='#fff3c0';ctx.strokeStyle='rgba(255,243,192,'+(0.45+0.35*Math.sin(performance.now()/65)).toFixed(2)+')';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,b.r+5,0,6.28);ctx.stroke();}
   ctx.restore();ctx.shadowBlur=0;}
 
 function drawCoin(c){
