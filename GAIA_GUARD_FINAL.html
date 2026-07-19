@@ -48,8 +48,10 @@
   .title-tag{font-size:11px;letter-spacing:6px;color:var(--cyan);margin-bottom:14px;}
   .title-main{font-size:46px;line-height:.95;letter-spacing:2px;color:var(--gaia);text-shadow:0 0 18px rgba(61,255,160,.55),4px 4px 0 #0c2a1c;}
   .title-sub{font-size:15px;letter-spacing:4px;color:var(--alert);margin-top:6px;text-shadow:0 0 12px rgba(255,122,47,.5);}
-  .desc{font-size:12px;line-height:1.9;color:var(--dim);margin:24px 0 6px;max-width:344px;}
+  .desc{font-size:clamp(9px,2.65vw,11px);line-height:1.55;color:var(--dim);margin:15px 0 5px;width:100%;max-width:360px;overflow-wrap:anywhere;}
   .desc b{color:var(--text);}
+  .desc-en,.desc-ja{display:block;}
+  .desc-sep{display:block;margin:3px 0;color:var(--gaia);opacity:.7;}
   .btn{margin-top:24px;pointer-events:auto;cursor:pointer;font-family:inherit;font-size:16px;letter-spacing:3px;color:var(--bg);background:var(--gaia);border:none;padding:14px 34px;
     box-shadow:4px 4px 0 #0c2a1c,0 0 24px rgba(61,255,160,.4);transition:transform .08s,box-shadow .08s;}
   .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #0c2a1c,0 0 16px rgba(61,255,160,.4);}
@@ -143,10 +145,8 @@
     <div class="title-tag">CIVILIAN AG-DEFENSE NETWORK</div>
     <div class="title-main">GAIA<br>GUARD</div>
     <div class="title-sub">圃場防衛プロトコル</div>
-    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL5</div>
-    <div class="desc">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。<br>
-      コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。<br>
-      進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</div>
+    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL6</div>
+    <div class="desc"><span class="desc-en">Guide the <b>wild birds and animals</b> that descend on the fields <b>gently back to the mountains without harming them</b>. Use thank-you coins to level up, add support drones, and defend all <b>five farms</b>. The farther you advance, the tougher the enemies become. Protect the final farm, and light will return to the world.</span><span class="desc-sep">/</span><span class="desc-ja">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</span></div>
     <div class="controls-hint">▸ MOBILE: DRAG TO MOVE（DRONE FOLLOWS YOUR FINGER） / スマホ:指でなぞって移動（機体は指に追従）<br>▸ PC: WASD MOVE ・ SPACE FIRE / PC:WASD移動・スペースで射撃<br>▸ FARM SHIELDS ACTIVATE AUTOMATICALLY / 農園シールドは危険時に自動展開<br>▸ DODGE BOSS ATTACKS / 山のヌシの火球・突進はライフ減少</div>
     <div class="fire-row">
       <span class="fire-lbl">FIRE / 射撃</span>
