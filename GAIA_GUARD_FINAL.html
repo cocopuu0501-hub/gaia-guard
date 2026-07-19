@@ -143,11 +143,11 @@
     <div class="title-tag">CIVILIAN AG-DEFENSE NETWORK</div>
     <div class="title-main">GAIA<br>GUARD</div>
     <div class="title-sub">圃場防衛プロトコル</div>
-    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL3</div>
+    <div style="margin-top:6px;font-size:11px;letter-spacing:2px;color:#5fa;opacity:.7;">build FINAL4</div>
     <div class="desc">畑に降りてくる<b>鳥獣たち</b>を、傷つけず<b>やさしくお山へ帰す</b>。<br>
       コインでLvを上げ、子機を増やしながら<b>5つの農園</b>を踏破せよ。<br>
       進むほど敵は手強い。最後の農園を守りきれば、世界に光が還る。</div>
-    <div class="controls-hint">▸ スマホ:指でなぞって移動（機体は指の少し上） / MOBILE: DRAG TO MOVE<br>▸ PC:WASD移動・スペースで射撃 / PC: WASD MOVE ・ SPACE FIRE<br>▸ 農園シールドは危険時に自動展開 / FARM SHIELDS ACTIVATE AUTOMATICALLY<br>▸ 山のヌシの火球・突進はライフ減少 / DODGE BOSS ATTACKS</div>
+    <div class="controls-hint">▸ スマホ:指でなぞって移動（機体は指に追従） / MOBILE: DRAG TO MOVE<br>▸ PC:WASD移動・スペースで射撃 / PC: WASD MOVE ・ SPACE FIRE<br>▸ 農園シールドは危険時に自動展開 / FARM SHIELDS ACTIVATE AUTOMATICALLY<br>▸ 山のヌシの火球・突進はライフ減少 / DODGE BOSS ATTACKS</div>
     <div class="fire-row">
       <span class="fire-lbl">射撃 / FIRE</span>
       <button class="fmbtn active" id="fmAuto">オート / AUTO</button>
@@ -258,7 +258,7 @@ const bossTint=document.getElementById('bosstint');
 const hitFlashEl=document.getElementById('hitflash');
 function hitFlash(col,a){hitFlashEl.style.background=col||'#ff2a2a';hitFlashEl.style.opacity=(a||0.42);setTimeout(()=>{hitFlashEl.style.opacity=0;},40);}
 const IS_TOUCH=('ontouchstart' in window)||matchMedia('(pointer:coarse)').matches;
-const TOUCH_OFFSET=52;  // 機体を指の少し上に置き、機体と敵弾を見やすくする
+const TOUCH_OFFSET=0;  // 機体を指の位置そのものに置き、直接追従させる
 let fireMode='auto';let pointerFiring=false;let fireBtnHeld=false;let fireBuffer=0;
 
 let W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
