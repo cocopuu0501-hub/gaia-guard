@@ -30,3 +30,6 @@ KORU（コル）——空と地上のあいだに立つ、ひとつの心の物�
 
 - 第二弾：アイソメトリック（立体レトロ）化を構想
 - 第三弾：洞窟探索・暗号解読・古代文明発見を構想
+## How Codex and GPT-5.6 were used
+
+This game was built by a non-coder directing AIs. OpenAI's Codex (GPT-5.6 Sol) did the hands-on development: it read this repository, playtested the game in a real browser, tuned the difficulty across all five areas, improved the mobile touch controls, added bilingual (English / Japanese) UI, and committed each change back to GitHub. Every balance and gameplay refinement in the final build was implemented through Codex with GPT-5.6.
